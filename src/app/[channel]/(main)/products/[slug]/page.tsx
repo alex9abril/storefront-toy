@@ -3,7 +3,6 @@ import { revalidatePath } from "next/cache";
 import { notFound } from "next/navigation";
 import { type ResolvingMetadata, type Metadata } from "next";
 import xss from "xss";
-import { invariant } from "ts-invariant";
 import { type WithContext, type Product } from "schema-dts";
 import { AddButton } from "./AddButton";
 import { VariantSelector } from "@/ui/components/VariantSelector";
@@ -60,10 +59,11 @@ export async function generateMetadata(
 	};
 }
 
-export async function generateStaticParams({ params }: { params: { channel: string } }) {
+export async function generateStaticParams({ params }: { params?: { channel?: string } }) {
+	const channel = params?.channel || process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "default-channel";
 	const { products } = await executeGraphQL(ProductListDocument, {
 		revalidate: 60,
-		variables: { first: 20, channel: params.channel },
+		variables: { first: 20, channel },
 		withAuth: false,
 	});
 
@@ -104,7 +104,10 @@ export default async function Page(props: {
 			checkoutId: await Checkout.getIdFromCookies(params.channel),
 			channel: params.channel,
 		});
-		invariant(checkout, "This should never happen");
+		if (!checkout) {
+			console.error("Checkout.findOrCreate returned null", { channel: params.channel });
+			return;
+		}
 
 		await Checkout.saveIdToCookie(params.channel, checkout.id);
 
@@ -112,13 +115,15 @@ export default async function Page(props: {
 			return;
 		}
 
-		// TODO: error handling
+		// Add line to checkout; use no-store and disable auth cookie for this call
 		await executeGraphQL(CheckoutAddLineDocument, {
 			variables: {
 				id: checkout.id,
 				productVariantId: decodeURIComponent(selectedVariantID),
 			},
-			cache: "no-cache",
+			cache: "no-store",
+			withAuth: false,
+			useAppToken: false,
 		});
 
 		revalidatePath("/cart");

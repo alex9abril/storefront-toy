@@ -2,6 +2,7 @@ import { draftMode } from "next/headers";
 import { ProductListByCollectionDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 import { ProductList } from "@/ui/components/ProductList";
+import { Hero } from "@/ui/components/Hero";
 
 export const metadata = {
 	title: "ACME Storefront, powered by Saleor & Next.js",
@@ -39,9 +40,12 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 	const products = data.collection?.products.edges.map(({ node: product }) => product);
 
 	return (
-		<section className="mx-auto max-w-7xl p-8 pb-16">
-			<h2 className="sr-only">Product list</h2>
-			<ProductList products={products} />
-		</section>
+		<>
+			<Hero />
+			<section className="mx-auto max-w-7xl p-8 pb-16">
+				<h2 className="sr-only">Product list</h2>
+				<ProductList products={products} />
+			</section>
+		</>
 	);
 }

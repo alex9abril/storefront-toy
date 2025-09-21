@@ -1,7 +1,11 @@
 import { notFound } from "next/navigation";
 import { type ResolvingMetadata, type Metadata } from "next";
-import { ProductListByCategoryDocument } from "@/gql/graphql";
-import { executeGraphQL } from "@/lib/graphql";
+import {
+	getCategoryId,
+	listProductsByCategory,
+	listProductsByCategoryNoChannel,
+} from "@/lib/utils/listProductsByCategory";
+import { type ProductListByCategoryQuery, type ProductListByCategory_NoChannelArgQuery } from "@/gql/graphql";
 import { ProductList } from "@/ui/components/ProductList";
 
 export const generateMetadata = async (
@@ -9,45 +13,50 @@ export const generateMetadata = async (
 	parent: ResolvingMetadata,
 ): Promise<Metadata> => {
 	const params = await props.params;
-	console.log("[Category/Page] Payload", {
-		operation: "ProductListByCategory",
-		variables: { slug: params.slug, channel: params.channel },
-	});
-	const { category } = await executeGraphQL(ProductListByCategoryDocument, {
-		variables: { slug: params.slug, channel: params.channel },
-		revalidate: 60,
-	});
-
 	return {
-		title: `${category?.name || "Categroy"} | ${category?.seoTitle || (await parent).title?.absolute}`,
-		description: category?.seoDescription || category?.description || category?.seoTitle || category?.name,
+		title: `${params.slug} | ${(await parent).title?.absolute}`,
+		description: params.slug,
 	};
 };
 
 export default async function Page(props: { params: Promise<{ slug: string; channel: string }> }) {
 	const params = await props.params;
-	const { category } = await executeGraphQL(ProductListByCategoryDocument, {
-		variables: { slug: params.slug, channel: params.channel },
-		revalidate: 60,
-	});
-
-	console.log("[Category/Page] GraphQL response", {
-		slug: params.slug,
-		channel: params.channel,
-		total: category?.products?.edges?.length ?? null,
-		firstNames: category?.products?.edges?.map((e) => e.node.name).slice(0, 5),
-	});
-
-	if (!category || !category.products) {
+	const categoryId = await getCategoryId(params.slug);
+	if (!categoryId) {
 		notFound();
 	}
+	type ProductsConnection = NonNullable<ProductListByCategoryQuery["products"]>;
+	type ProductsEdges = ProductsConnection["edges"];
 
-	const { name, products } = category;
+	let productsConn: ProductsConnection | null = null;
+	try {
+		const dataA = await listProductsByCategory(categoryId, params.channel, 100);
+		productsConn = dataA.products ?? null;
+	} catch {
+		const dataB: ProductListByCategory_NoChannelArgQuery = await listProductsByCategoryNoChannel(
+			params.slug,
+			100,
+		);
+		if (dataB.category?.products) {
+			// Re-shape to expected connection
+			productsConn = {
+				totalCount: dataB.category.products.totalCount,
+				edges: dataB.category.products.edges.map((edge) => ({ node: edge.node })),
+			} as ProductsConnection;
+		}
+	}
+
+	const products: ProductsConnection =
+		productsConn ?? ({ totalCount: 0, edges: [] as ProductsEdges } as ProductsConnection);
 
 	return (
 		<div className="mx-auto max-w-7xl p-8 pb-16">
-			<h1 className="pb-8 text-xl font-semibold">{name}</h1>
-			<ProductList products={products.edges.map((e) => e.node)} />
+			<h1 className="pb-8 text-xl font-semibold">{params.slug}</h1>
+			{products.totalCount === 0 ? (
+				<p className="text-sm text-neutral-500">No hay productos en esta categoría</p>
+			) : (
+				<ProductList products={products.edges.map((e) => e.node)} />
+			)}
 		</div>
 	);
 }

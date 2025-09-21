@@ -1,13 +1,102 @@
-query ProductListByCategory($slug: String!, $channel: String!) {
+# A1: get category id by slug
+query GetCategoryId($slug: String!) {
+	category(slug: $slug) {
+		id
+		name
+		description
+		seoTitle
+		seoDescription
+	}
+}
+
+# A2: list products by category via root products with channel
+query ProductListByCategory($category: ID!, $channel: String!, $first: Int = 100) {
+	products(first: $first, channel: $channel, filter: { categories: [$category] }) {
+		totalCount
+		edges {
+			node {
+				id
+				name
+				slug
+				category {
+					id
+					name
+				}
+				pricing {
+					priceRange {
+						start {
+							gross {
+								amount
+								currency
+							}
+						}
+					}
+				}
+				variants {
+					id
+					name
+					sku
+				}
+				media {
+					url
+					alt
+				}
+				thumbnail(size: 1024, format: WEBP) {
+					url
+					alt
+				}
+			}
+		}
+	}
+}
+
+# B (fallback): list products from category without channel arg
+query ProductListByCategory_NoChannelArg($slug: String!, $first: Int = 100) {
 	category(slug: $slug) {
 		name
 		description
-		seoDescription
 		seoTitle
-		products(first: 100, channel: $channel) {
+		seoDescription
+		products(first: $first) {
+			totalCount
 			edges {
 				node {
-					...ProductListItem
+					id
+					name
+					slug
+					category {
+						id
+						name
+					}
+					channelListings {
+						channel {
+							slug
+						}
+						isPublished
+						availableForPurchaseAt
+					}
+					variants {
+						id
+						name
+						sku
+						channelListings {
+							channel {
+								slug
+							}
+							price {
+								amount
+								currency
+							}
+						}
+					}
+					media {
+						url
+						alt
+					}
+					thumbnail(size: 1024, format: WEBP) {
+						url
+						alt
+					}
 				}
 			}
 		}

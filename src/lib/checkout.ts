@@ -26,6 +26,8 @@ export async function find(checkoutId: string) {
 						id: checkoutId,
 					},
 					cache: "no-cache",
+					withAuth: false,
+					useAppToken: false,
 				})
 			: { checkout: null };
 
@@ -37,11 +39,27 @@ export async function find(checkoutId: string) {
 
 export async function findOrCreate({ channel, checkoutId }: { checkoutId?: string; channel: string }) {
 	if (!checkoutId) {
-		return (await create({ channel })).checkoutCreate?.checkout;
+		const created = await create({ channel });
+		if (created.checkoutCreate?.checkout) {
+			return created.checkoutCreate.checkout;
+		}
+		console.error("checkoutCreate errors:", created.checkoutCreate?.errors);
+		return null;
 	}
 	const checkout = await find(checkoutId);
-	return checkout || (await create({ channel })).checkoutCreate?.checkout;
+	if (checkout) return checkout;
+	const created = await create({ channel });
+	if (created.checkoutCreate?.checkout) {
+		return created.checkoutCreate.checkout;
+	}
+	console.error("checkoutCreate errors:", created.checkoutCreate?.errors);
+	return null;
 }
 
 export const create = ({ channel }: { channel: string }) =>
-	executeGraphQL(CheckoutCreateDocument, { cache: "no-cache", variables: { channel } });
+	executeGraphQL(CheckoutCreateDocument, {
+		cache: "no-cache",
+		variables: { channel },
+		withAuth: false,
+		useAppToken: false,
+	});

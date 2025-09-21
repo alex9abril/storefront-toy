@@ -17,17 +17,24 @@ export async function executeGraphQL<Result, Variables>(
 		cache?: RequestCache;
 		revalidate?: number;
 		withAuth?: boolean;
+		useAppToken?: boolean;
 	} & (Variables extends Record<string, never> ? { variables?: never } : { variables: Variables }),
 ): Promise<Result> {
 	invariant(process.env.NEXT_PUBLIC_SALEOR_API_URL, "Missing NEXT_PUBLIC_SALEOR_API_URL env variable");
-	const { variables, headers, cache, revalidate, withAuth = true } = options;
+	const { variables, headers, cache, revalidate, withAuth = true, useAppToken = true } = options;
+
+	const mergedHeaders = new Headers({ "Content-Type": "application/json" });
+	if (useAppToken && process.env.SALEOR_APP_TOKEN) {
+		mergedHeaders.set("Authorization", `Bearer ${process.env.SALEOR_APP_TOKEN}`);
+	}
+	if (headers) {
+		const userHeaders = new Headers(headers);
+		userHeaders.forEach((value, key) => mergedHeaders.set(key, value));
+	}
 
 	const input = {
 		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			...headers,
-		},
+		headers: mergedHeaders ,
 		body: JSON.stringify({
 			query: operation.toString(),
 			...(variables && { variables }),
