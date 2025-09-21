@@ -9,6 +9,10 @@ export const generateMetadata = async (
 	parent: ResolvingMetadata,
 ): Promise<Metadata> => {
 	const params = await props.params;
+	console.log("[Category/Page] Payload", {
+		operation: "ProductListByCategory",
+		variables: { slug: params.slug, channel: params.channel },
+	});
 	const { category } = await executeGraphQL(ProductListByCategoryDocument, {
 		variables: { slug: params.slug, channel: params.channel },
 		revalidate: 60,
@@ -25,6 +29,13 @@ export default async function Page(props: { params: Promise<{ slug: string; chan
 	const { category } = await executeGraphQL(ProductListByCategoryDocument, {
 		variables: { slug: params.slug, channel: params.channel },
 		revalidate: 60,
+	});
+
+	console.log("[Category/Page] GraphQL response", {
+		slug: params.slug,
+		channel: params.channel,
+		total: category?.products?.edges?.length ?? null,
+		firstNames: category?.products?.edges?.map((e) => e.node.name).slice(0, 5),
 	});
 
 	if (!category || !category.products) {

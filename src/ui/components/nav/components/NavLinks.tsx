@@ -1,12 +1,14 @@
 import Link from "next/link";
+import { draftMode } from "next/headers";
 import { NavLink } from "./NavLink";
 import { executeGraphQL } from "@/lib/graphql";
 import { MenuGetBySlugDocument } from "@/gql/graphql";
 
 export const NavLinks = async ({ channel }: { channel: string }) => {
+	const { isEnabled } = await draftMode();
 	const navLinks = await executeGraphQL(MenuGetBySlugDocument, {
 		variables: { slug: "navbar", channel },
-		revalidate: 60 * 60 * 24,
+		...(isEnabled ? { cache: "no-store" as RequestCache } : { revalidate: 60 * 60 * 24 }),
 	});
 
 	return (

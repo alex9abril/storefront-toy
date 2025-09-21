@@ -1,14 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
+import { draftMode } from "next/headers";
 import { LinkWithChannel } from "../atoms/LinkWithChannel";
 import { ChannelSelect } from "./ChannelSelect";
 import { ChannelsListDocument, MenuGetBySlugDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
 
 export async function Footer({ channel }: { channel: string }) {
+	const { isEnabled } = await draftMode();
 	const footerLinks = await executeGraphQL(MenuGetBySlugDocument, {
 		variables: { slug: "footer", channel },
-		revalidate: 60 * 60 * 24,
+		...(isEnabled ? { cache: "no-store" as RequestCache } : { revalidate: 60 * 60 * 24 }),
 	});
 	const channels = process.env.SALEOR_APP_TOKEN
 		? await executeGraphQL(ChannelsListDocument, {
@@ -17,7 +19,7 @@ export async function Footer({ channel }: { channel: string }) {
 					// and use app token instead
 					Authorization: `Bearer ${process.env.SALEOR_APP_TOKEN}`,
 				},
-		  })
+			})
 		: null;
 	const currentYear = new Date().getFullYear();
 
