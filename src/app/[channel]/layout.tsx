@@ -20,7 +20,8 @@ export const generateStaticParams = async () => {
 				.map((channel) => ({ channel: channel.slug })) ?? []
 		);
 	} else {
-		return [{ channel: "default-channel" }];
+		const defaultChannel = process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "default-channel";
+		return [{ channel: defaultChannel }];
 	}
 };
 

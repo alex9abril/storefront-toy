@@ -1,4 +1,23 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# Try to use Node version managers if available
+# nvm
+if [ -s "$HOME/.nvm/nvm.sh" ]; then
+  . "$HOME/.nvm/nvm.sh"
+  if [ -f ".nvmrc" ]; then
+    nvm use >/dev/null 2>&1 || true
+  fi
+fi
+
+# fnm
+if command -v fnm >/dev/null 2>&1; then
+  eval "$(fnm env --use-on-cd)"
+fi
+
+# asdf
+if command -v asdf >/dev/null 2>&1; then
+  . "$(asdf which node >/dev/null 2>&1 || echo)"
+fi
+
 pnpm exec lint-staged
