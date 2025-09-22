@@ -22,6 +22,7 @@ export function ProductsFilters() {
 	const [labelsBySlug, setLabelsBySlug] = useState<Record<string, string>>({});
 	const [inputNameByAttr, setInputNameByAttr] = useState<Record<string, string>>({});
 	const [vehicleConfirmed, setVehicleConfirmed] = useState(false);
+	const [editingVehicle, setEditingVehicle] = useState(false);
 	const [categories, setCategories] = useState<
 		{
 			id: string;
@@ -176,7 +177,7 @@ export function ProductsFilters() {
 	// reserved for future clear behavior
 
 	const hasAnySelection = Object.values(selectedBySlug).some((v) => Boolean(v));
-	const isVehicleConfirmed = vehicleConfirmed || hasAnySelection;
+	const isVehicleConfirmed = !editingVehicle && (vehicleConfirmed || hasAnySelection);
 
 	const selectedLabelsOrdered = attributes
 		.map((att) => {
@@ -196,7 +197,10 @@ export function ProductsFilters() {
 					</p>
 					<button
 						type="button"
-						onClick={() => setVehicleConfirmed(false)}
+						onClick={() => {
+							setVehicleConfirmed(false);
+							setEditingVehicle(true);
+						}}
 						className="mt-3 inline-flex w-full items-center justify-center rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
 					>
 						Cambiar vehículo
@@ -233,7 +237,10 @@ export function ProductsFilters() {
 			{!isVehicleConfirmed && (
 				<button
 					type="button"
-					onClick={() => setVehicleConfirmed(true)}
+					onClick={() => {
+						setVehicleConfirmed(true);
+						setEditingVehicle(false);
+					}}
 					className="inline-flex w-full items-center justify-center rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-100"
 				>
 					Elegir vehículo
