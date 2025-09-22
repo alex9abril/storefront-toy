@@ -13,9 +13,9 @@ export async function UserMenuContainer() {
 		return <UserMenu user={user} />;
 	} else {
 		return (
-			<LinkWithChannel href="/login" className="h-6 w-6 flex-shrink-0">
+			<LinkWithChannel href="/login" className="h-6 w-6 flex-shrink-0" aria-label="Iniciar sesión">
 				<UserIcon className="h-6 w-6 shrink-0" aria-hidden="true" />
-				<span className="sr-only">Log in</span>
+				<span className="sr-only">Iniciar sesión</span>
 			</LinkWithChannel>
 		);
 	}

@@ -22,6 +22,26 @@ body {
 		background-color: var(--toyota-red-dark);
 	}
 
+	.btn-outline {
+		@apply inline-flex items-center justify-center rounded-full border border-neutral-300 px-5 py-2 text-sm font-medium text-neutral-900 transition-colors;
+		background-color: white;
+	}
+	.btn-outline:hover {
+		@apply border-neutral-400;
+	}
+
+	.btn-dark {
+		@apply inline-flex items-center justify-center rounded-full bg-neutral-900 px-6 py-2 text-sm font-semibold text-white transition-colors;
+	}
+	.btn-dark:hover {
+		@apply bg-black;
+	}
+
+	.chip {
+		@apply inline-flex items-center rounded-full border border-neutral-300 px-3 py-1 text-xs text-neutral-700;
+		background-color: #f3f4f6;
+	}
+
 	.link-primary {
 		color: var(--toyota-red);
 	}

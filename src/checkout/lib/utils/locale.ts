@@ -2,7 +2,7 @@ import { type CountryCode } from "@/checkout/graphql";
 
 export const getCurrentHref = () => location.href;
 
-const countryNames = new Intl.DisplayNames("EN-US", {
+const countryNames = new Intl.DisplayNames("es-MX", {
 	type: "region",
 });
 export const getCountryName = (countryCode: CountryCode): string =>

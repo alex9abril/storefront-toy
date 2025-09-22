@@ -126,6 +126,7 @@ To start the development server, run the following:
 
 ```bash
 pnpm dev
+NODE_DEBUG=undici pnpm dev
 ```
 
 The app is now running at `http://localhost:3000`.

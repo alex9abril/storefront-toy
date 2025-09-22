@@ -18,6 +18,15 @@ export const formatMoneyRange = (
 	const startMoney = start && formatMoney(start.amount, start.currency);
 	const stopMoney = stop && formatMoney(stop.amount, stop.currency);
 
+	if (startMoney && !stopMoney) {
+		return startMoney;
+	}
+	if (!startMoney && stopMoney) {
+		return stopMoney;
+	}
+	if (!startMoney && !stopMoney) {
+		return "";
+	}
 	if (startMoney === stopMoney) {
 		return startMoney;
 	}

@@ -34,7 +34,7 @@ export async function executeGraphQL<Result, Variables>(
 
 	const input = {
 		method: "POST",
-		headers: mergedHeaders ,
+		headers: mergedHeaders,
 		body: JSON.stringify({
 			query: operation.toString(),
 			...(variables && { variables }),
@@ -43,20 +43,26 @@ export async function executeGraphQL<Result, Variables>(
 		next: { revalidate },
 	};
 
-	const response = withAuth
+	let response = withAuth
 		? await (await getServerAuthClient()).fetchWithAuth(process.env.NEXT_PUBLIC_SALEOR_API_URL, input)
 		: await fetch(process.env.NEXT_PUBLIC_SALEOR_API_URL, input);
 
 	if (!response.ok) {
-		const body = await (async () => {
+		const bodyText = await (async () => {
 			try {
 				return await response.text();
 			} catch {
 				return "";
 			}
 		})();
-		console.error(input.body);
-		throw new HTTPError(response, body);
+		// Retry once without auth if auth client produced an invalid request (e.g., empty body)
+		if (withAuth && bodyText.includes("Must provide a query string")) {
+			response = await fetch(process.env.NEXT_PUBLIC_SALEOR_API_URL, input);
+		}
+		if (!response.ok) {
+			console.error(input.body);
+			throw new HTTPError(response, bodyText);
+		}
 	}
 
 	const body = (await response.json()) as GraphQLRespone<Result>;

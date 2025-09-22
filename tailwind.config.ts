@@ -20,6 +20,9 @@ const config: Config = {
 					},
 				},
 			},
+			fontFamily: {
+				helvetica: ['"Helvetica Neue"', "Helvetica", "Arial", "ui-sans-serif", "system-ui", "sans-serif"],
+			},
 		},
 	},
 	plugins: [TypographyPlugin, FormPlugin, ContainerQueriesPlugin],

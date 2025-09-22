@@ -7,6 +7,7 @@ import {
 } from "@/lib/utils/listProductsByCategory";
 import { type ProductListByCategoryQuery, type ProductListByCategory_NoChannelArgQuery } from "@/gql/graphql";
 import { ProductList } from "@/ui/components/ProductList";
+import { ProductsFilters } from "@/ui/components/ProductsFilters";
 
 export const generateMetadata = async (
 	props: { params: Promise<{ slug: string; channel: string }> },
@@ -50,13 +51,18 @@ export default async function Page(props: { params: Promise<{ slug: string; chan
 		productsConn ?? ({ totalCount: 0, edges: [] as ProductsEdges } as ProductsConnection);
 
 	return (
-		<div className="mx-auto max-w-7xl p-8 pb-16">
-			<h1 className="pb-8 text-xl font-semibold">{params.slug}</h1>
-			{products.totalCount === 0 ? (
-				<p className="text-sm text-neutral-500">No hay productos en esta categoría</p>
-			) : (
-				<ProductList products={products.edges.map((e) => e.node)} />
-			)}
-		</div>
+		<section className="mx-auto grid max-w-7xl grid-cols-1 gap-8 p-8 pb-16 lg:grid-cols-12">
+			<div className="lg:col-span-3">
+				<ProductsFilters />
+			</div>
+			<div className="lg:col-span-9">
+				<h1 className="pb-8 text-xl font-semibold">{params.slug}</h1>
+				{products.totalCount === 0 ? (
+					<p className="text-sm text-neutral-500">No hay productos en esta categoría</p>
+				) : (
+					<ProductList products={products.edges.map((e) => e.node)} />
+				)}
+			</div>
+		</section>
 	);
 }

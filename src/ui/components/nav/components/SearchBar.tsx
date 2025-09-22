@@ -16,11 +16,11 @@ export const SearchBar = ({ channel }: { channel: string }) => {
 			className="group relative my-2 flex w-full items-center justify-items-center text-sm lg:w-80"
 		>
 			<label className="w-full">
-				<span className="sr-only">search for products</span>
+				<span className="sr-only">Buscar productos</span>
 				<input
 					type="text"
 					name="search"
-					placeholder="Search for products..."
+					placeholder="Buscar productos..."
 					autoComplete="on"
 					required
 					className="h-10 w-full rounded-md border border-neutral-300 bg-transparent bg-white px-4 py-2 pr-10 text-sm text-black placeholder:text-neutral-500 focus:border-black focus:ring-black"

@@ -11,17 +11,17 @@ import { getOrderedAddressFields, getRequiredAddressFields } from "@/checkout/co
 
 export type AddressFieldLabel = Exclude<AddressField, "countryCode"> | "country";
 export const addressFieldMessages: Record<AddressFieldLabel, string> = {
-	city: "City",
-	firstName: "First name",
-	countryArea: "Country area",
-	lastName: "Last name",
-	country: "Country",
-	cityArea: "City area",
-	postalCode: "Postal code",
-	companyName: "Company",
-	streetAddress1: "Street address",
-	streetAddress2: "Street address (continue)",
-	phone: "Phone number",
+	city: "Ciudad",
+	firstName: "Nombre(s)",
+	countryArea: "Estado",
+	lastName: "Apellido(s)",
+	country: "País",
+	cityArea: "Colonia / Localidad",
+	postalCode: "Código postal",
+	companyName: "Empresa",
+	streetAddress1: "Calle y número",
+	streetAddress2: "Interior / Referencias",
+	phone: "Teléfono",
 };
 
 export type LocalizedAddressFieldLabel =
@@ -33,13 +33,13 @@ export type LocalizedAddressFieldLabel =
 	| "postTown"
 	| "prefecture";
 export const localizedAddressFieldMessages: Record<LocalizedAddressFieldLabel, string> = {
-	province: "Province",
-	district: "District",
-	state: "State",
-	zip: "Zip code",
-	postal: "Postal code",
-	postTown: "Post town",
-	prefecture: "Prefecture",
+	province: "Provincia",
+	district: "Distrito",
+	state: "Estado",
+	zip: "Código postal",
+	postal: "Código postal",
+	postTown: "Municipio",
+	prefecture: "Prefectura",
 };
 
 export const useAddressFormUtils = (countryCode: CountryCode = defaultCountry) => {

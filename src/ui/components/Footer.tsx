@@ -5,6 +5,7 @@ import { LinkWithChannel } from "../atoms/LinkWithChannel";
 import { ChannelSelect } from "./ChannelSelect";
 import { ChannelsListDocument, MenuGetBySlugDocument } from "@/gql/graphql";
 import { executeGraphQL } from "@/lib/graphql";
+import { WarehouseSelect } from "@/ui/components/WarehouseSelect";
 
 export async function Footer({ channel }: { channel: string }) {
 	const { isEnabled } = await draftMode();
@@ -78,10 +79,14 @@ export async function Footer({ channel }: { channel: string }) {
 				{channels?.channels && (
 					<div className="mb-4 text-neutral-500">
 						<label>
-							<span className="text-sm">Change currency:</span> <ChannelSelect channels={channels.channels} />
+							<span className="text-sm">Cambiar moneda:</span> <ChannelSelect channels={channels.channels} />
 						</label>
 					</div>
 				)}
+
+				<div className="mb-4 text-neutral-500">
+					<WarehouseSelect />
+				</div>
 
 				<div className="flex flex-col justify-between border-t border-neutral-200 py-10 sm:flex-row">
 					<p className="text-sm text-neutral-500">Copyright &copy; {currentYear} Your Store, Inc.</p>
