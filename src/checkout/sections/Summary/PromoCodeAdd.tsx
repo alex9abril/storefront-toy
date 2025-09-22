@@ -39,13 +39,17 @@ export const PromoCodeAdd: FC<Classes> = ({ className }) => {
 	return (
 		<FormProvider form={form}>
 			<div className={clsx("relative my-4", className)}>
-				<TextInput required={false} name="promoCode" label="Add gift card or discount code" />
+				<TextInput
+					required={false}
+					name="promoCode"
+					label="Agregar tarjeta de regalo o código de descuento"
+				/>
 				{showApplyButton && (
 					<Button
 						className="absolute bottom-2.5 right-3"
 						variant="tertiary"
-						ariaLabel="apply"
-						label="Apply"
+						ariaLabel="aplicar"
+						label="Aplicar"
 						type="submit"
 					/>
 				)}

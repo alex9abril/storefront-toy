@@ -4,6 +4,7 @@ import { executeGraphQL } from "@/lib/graphql";
 import { ProductList } from "@/ui/components/ProductList";
 import { Hero } from "@/ui/components/Hero";
 import { SectionsShowcase } from "@/ui/components/SectionsShowcase";
+import { VehicleSelectorBanner } from "@/ui/components/VehicleSelectorBanner";
 
 export const metadata = {
 	title: "ACME Storefront, powered by Saleor & Next.js",
@@ -43,6 +44,9 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 	return (
 		<>
 			<Hero />
+			<div className="mx-auto max-w-7xl px-6">
+				<VehicleSelectorBanner />
+			</div>
 			<SectionsShowcase channel={params.channel} />
 			<section className="mx-auto max-w-7xl p-8 pb-16">
 				<h2 className="mb-6 text-2xl font-semibold tracking-tight text-neutral-900">Destacados</h2>

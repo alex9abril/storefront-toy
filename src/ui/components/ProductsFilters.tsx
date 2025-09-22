@@ -32,7 +32,8 @@ export function ProductsFilters() {
 			parent?: { id: string; name: string; slug: string } | null;
 		}[]
 	>([]);
-	const [showAllCats, setShowAllCats] = useState(false);
+	const [showAllCats] = useState(true);
+	const [openCats, setOpenCats] = useState<Record<string, boolean>>({});
 
 	useEffect(() => {
 		setQuery(searchParams.get("q") || "");
@@ -49,9 +50,11 @@ export function ProductsFilters() {
 					const savedSelected = localStorage.getItem("vehicle.selectedBySlug");
 					const savedInputs = localStorage.getItem("vehicle.inputNameByAttr");
 					const savedConfirmed = localStorage.getItem("vehicle.confirmed");
+					const savedOpen = localStorage.getItem("filters.openCats");
 					if (savedSelected) savedSelectedObj = JSON.parse(savedSelected) as Record<string, string>;
 					if (savedInputs) savedInputsObj = JSON.parse(savedInputs) as Record<string, string>;
 					if (savedConfirmed) savedConfirmedBool = JSON.parse(savedConfirmed) as boolean;
+					if (savedOpen) setOpenCats(JSON.parse(savedOpen) as Record<string, boolean>);
 				} catch {}
 
 				// set state early so UI reflects persisted values immediately
@@ -159,8 +162,9 @@ export function ProductsFilters() {
 			localStorage.setItem("vehicle.selectedBySlug", JSON.stringify(selectedBySlug));
 			localStorage.setItem("vehicle.inputNameByAttr", JSON.stringify(inputNameByAttr));
 			localStorage.setItem("vehicle.confirmed", JSON.stringify(vehicleConfirmed));
+			localStorage.setItem("filters.openCats", JSON.stringify(openCats));
 		} catch {}
-	}, [selectedBySlug, inputNameByAttr, vehicleConfirmed]);
+	}, [selectedBySlug, inputNameByAttr, vehicleConfirmed, openCats]);
 
 	function apply() {
 		const params = new URLSearchParams(Array.from(searchParams.entries()));
@@ -187,7 +191,7 @@ export function ProductsFilters() {
 		.filter(Boolean);
 
 	return (
-		<aside className="sticky top-20 h-fit w-full max-w-xs space-y-6 rounded-lg border border-neutral-200 bg-white p-4">
+		<aside className="sticky top-20 mt-4 h-fit w-full max-w-xs space-y-6 rounded-lg border border-neutral-200 bg-white p-4">
 			{/* Sección 1: Vehículo (solo visible si hay selección) */}
 			{isVehicleConfirmed && selectedLabelsOrdered.length > 0 && (
 				<div className="rounded-md border border-neutral-200 bg-neutral-50 p-4 text-neutral-800">
@@ -262,10 +266,16 @@ export function ProductsFilters() {
 				<p className="text-sm font-medium text-neutral-900">Buscar por categoría</p>
 				<ul className="divide-y divide-neutral-100 text-sm text-neutral-800">
 					{(categories.filter((c) => c.level === 0) || [])
-						.slice(0, showAllCats ? undefined : 4)
+						.slice(0, showAllCats ? undefined : undefined)
 						.map((root) => (
 							<li key={root.id} className="py-2">
-								<details className="group">
+								<details
+									className="group"
+									open={Boolean((openCats )[root.id])}
+									onToggle={(e) =>
+										setOpenCats((prev) => ({ ...prev, [root.id]: (e.target as HTMLDetailsElement).open }))
+									}
+								>
 									<summary className="flex cursor-pointer list-none items-center justify-between">
 										<LinkWithChannel className="block py-1 hover:underline" href={`/categories/${root.slug}`}>
 											{root.name}
@@ -277,7 +287,16 @@ export function ProductsFilters() {
 											.filter((c) => c.parent?.id === root.id)
 											.map((lvl1) => (
 												<li key={lvl1.id}>
-													<details className="group">
+													<details
+														className="group"
+														open={Boolean((openCats )[lvl1.id])}
+														onToggle={(e) =>
+															setOpenCats((prev) => ({
+																...prev,
+																[lvl1.id]: (e.target as HTMLDetailsElement).open,
+															}))
+														}
+													>
 														<summary className="flex cursor-pointer list-none items-center justify-between">
 															<LinkWithChannel
 																className="block py-1 hover:underline"
@@ -311,19 +330,6 @@ export function ProductsFilters() {
 							</li>
 						))}
 				</ul>
-				{/* Ver todo / Ver menos */}
-				<button
-					type="button"
-					onClick={() => setShowAllCats((s) => !s)}
-					className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-neutral-700 hover:underline"
-				>
-					{showAllCats ? "Ver menos" : "Ver todo"}
-					<span
-						className={`text-neutral-400 transition-transform ${showAllCats ? "rotate-180" : "rotate-0"}`}
-					>
-						⌄
-					</span>
-				</button>
 			</div>
 
 			<button onClick={apply} className="btn-primary w-full">

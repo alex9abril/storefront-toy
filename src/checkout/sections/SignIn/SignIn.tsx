@@ -63,9 +63,9 @@ export const SignIn: React.FC<SignInProps> = ({
 
 	return (
 		<SignInFormContainer
-			title="Sign in"
-			redirectSubtitle="New customer?"
-			redirectButtonLabel="Guest checkout"
+			title="Iniciar sesión"
+			redirectSubtitle="¿Eres nuevo?"
+			redirectButtonLabel="Comprar como invitado"
 			onSectionChange={onSectionChange}
 		>
 			<FormProvider form={form}>
@@ -73,27 +73,27 @@ export const SignIn: React.FC<SignInProps> = ({
 					<TextInput
 						required
 						name="email"
-						label="Email"
+						label="Correo electrónico"
 						onChange={(event) => {
 							handleChange(event);
 							onEmailChange(event.currentTarget.value);
 						}}
 					/>
-					<PasswordInput name="password" label="Password" required />
+					<PasswordInput name="password" label="Contraseña" required />
 					<div className="flex w-full flex-row items-center justify-end">
 						<Button
 							ariaDisabled={isSubmitting}
-							ariaLabel="send password reset link"
+							ariaLabel="enviar enlace para restablecer contraseña"
 							variant="tertiary"
-							label={passwordResetSent ? "Resend?" : "Forgot password?"}
+							label={passwordResetSent ? "¿Reenviar?" : "¿Olvidaste tu contraseña?"}
 							className="ml-1 mr-4"
 							onClick={(e) => (isSubmitting ? e.preventDefault() : onPasswordResetRequest)}
 						/>
 						<Button
 							type="submit"
 							disabled={isSubmitting}
-							ariaLabel={"Sign in"}
-							label={isSubmitting ? "Processing…" : "Sign in"}
+							ariaLabel={"Iniciar sesión"}
+							label={isSubmitting ? "Procesando…" : "Iniciar sesión"}
 						/>
 					</div>
 				</div>

@@ -21,9 +21,9 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 
 	return (
 		<SignInFormContainer
-			title="Contact details"
-			redirectSubtitle="Already have an account?"
-			redirectButtonLabel="Sign in"
+			title="Datos de contacto"
+			redirectSubtitle="¿Ya tienes cuenta?"
+			redirectButtonLabel="Iniciar sesión"
 			onSectionChange={onSectionChange}
 		>
 			<FormProvider form={form}>
@@ -31,7 +31,7 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 					<TextInput
 						required
 						name="email"
-						label="Email"
+						label="Correo electrónico"
 						onChange={(event) => {
 							handleChange(event);
 							onEmailChange(event.currentTarget.value);
@@ -39,12 +39,12 @@ export const GuestUser: React.FC<GuestUserProps> = ({
 					/>
 					<Checkbox
 						name="createAccount"
-						label="I want to create account"
+						label="Quiero crear una cuenta"
 						data-testid={"createAccountCheckbox"}
 					/>
 					{createAccount && (
 						<div className="mt-2">
-							<PasswordInput name="password" label="Password (minimum 8 characters)" required />
+							<PasswordInput name="password" label="Contraseña (mínimo 8 caracteres)" required />
 						</div>
 					)}
 				</div>
