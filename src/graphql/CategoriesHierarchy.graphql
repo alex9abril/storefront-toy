@@ -1,0 +1,37 @@
+query CategoryHierarchy($first: Int = 100, $childrenFirst: Int = 50) {
+	categories(first: $first) {
+		edges {
+			node {
+				id
+				name
+				slug
+				level
+				parent {
+					id
+					name
+					slug
+				}
+				ancestors(last: 10) {
+					edges {
+						node {
+							id
+							name
+							slug
+							level
+						}
+					}
+				}
+				children(first: $childrenFirst) {
+					edges {
+						node {
+							id
+							name
+							slug
+							level
+						}
+					}
+				}
+			}
+		}
+	}
+}

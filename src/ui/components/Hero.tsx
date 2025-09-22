@@ -5,7 +5,7 @@ export function Hero() {
 		<section className="relative isolate overflow-hidden bg-neutral-900">
 			<div
 				className="absolute inset-0 -z-10 bg-cover bg-center opacity-60"
-				style={{ backgroundImage: "url('/opengraph-image.png')" }}
+				style={{ backgroundImage: "url('/imagen-2.jpg')" }}
 			/>
 			<div className="mx-auto max-w-7xl px-6 py-24 lg:flex lg:items-center lg:gap-12 lg:px-8">
 				<div className="max-w-2xl">

@@ -6,7 +6,7 @@ import { formatMoney, getHrefForVariant } from "@/lib/utils";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 
 export const metadata = {
-	title: "Shopping Cart · Saleor Storefront example",
+	title: "Carrito",
 };
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
@@ -18,15 +18,13 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 	if (!checkout || checkout.lines.length < 1) {
 		return (
 			<section className="mx-auto max-w-7xl p-8">
-				<h1 className="mt-8 text-3xl font-bold text-neutral-900">Your Shopping Cart is empty</h1>
-				<p className="my-12 text-sm text-neutral-500">
-					Looks like you haven’t added any items to the cart yet.
-				</p>
+				<h1 className="mt-8 text-3xl font-bold text-neutral-900">Tu carrito está vacío</h1>
+				<p className="my-12 text-sm text-neutral-500">Aún no has agregado artículos al carrito.</p>
 				<LinkWithChannel
 					href="/products"
 					className="inline-block max-w-full rounded border border-transparent bg-neutral-900 px-6 py-3 text-center font-medium text-neutral-50 hover:bg-neutral-800 aria-disabled:cursor-not-allowed aria-disabled:bg-neutral-500 sm:px-16"
 				>
-					Explore products
+					Explorar productos
 				</LinkWithChannel>
 			</section>
 		);
@@ -34,7 +32,7 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 
 	return (
 		<section className="mx-auto max-w-7xl p-8">
-			<h1 className="mt-8 text-3xl font-bold text-neutral-900">Your Shopping Cart</h1>
+			<h1 className="mt-8 text-3xl font-bold text-neutral-900">Tu carrito</h1>
 			<form className="mt-12">
 				<ul
 					data-testid="CartProductList"
@@ -67,7 +65,7 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 										</LinkWithChannel>
 										<p className="mt-1 text-sm text-neutral-500">{item.variant?.product?.category?.name}</p>
 										{item.variant.name !== item.variant.id && Boolean(item.variant.name) && (
-											<p className="mt-1 text-sm text-neutral-500">Variant: {item.variant.name}</p>
+											<p className="mt-1 text-sm text-neutral-500">Variante: {item.variant.name}</p>
 										)}
 									</div>
 									<p className="text-right font-semibold text-neutral-900">
@@ -75,7 +73,7 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 									</p>
 								</div>
 								<div className="flex justify-between">
-									<div className="text-sm font-bold">Qty: {item.quantity}</div>
+									<div className="text-sm font-bold">Cantidad: {item.quantity}</div>
 									<DeleteLineButton checkoutId={checkoutId} lineId={item.id} />
 								</div>
 							</div>
@@ -87,8 +85,8 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 					<div className="rounded border bg-neutral-50 px-4 py-2">
 						<div className="flex items-center justify-between gap-2 py-2">
 							<div>
-								<p className="font-semibold text-neutral-900">Your Total</p>
-								<p className="mt-1 text-sm text-neutral-500">Shipping will be calculated in the next step</p>
+								<p className="font-semibold text-neutral-900">Total</p>
+								<p className="mt-1 text-sm text-neutral-500">El envío se calculará en el siguiente paso</p>
 							</div>
 							<div className="font-medium text-neutral-900">
 								{formatMoney(checkout.totalPrice.gross.amount, checkout.totalPrice.gross.currency)}

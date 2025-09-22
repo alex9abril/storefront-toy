@@ -6,7 +6,8 @@ import { type ResolvingMetadata, type Metadata } from "next";
 import xss from "xss";
 import { type WithContext, type Product } from "schema-dts";
 import { VariantSelector } from "@/ui/components/VariantSelector";
-import { ProductImageWrapper } from "@/ui/atoms/ProductImageWrapper";
+// import { ProductImageWrapper } from "@/ui/atoms/ProductImageWrapper";
+import { ProductGallery } from "@/ui/components/ProductGallery";
 import { executeGraphQL } from "@/lib/graphql";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
 import {
@@ -102,7 +103,7 @@ export default async function Page(props: {
 		notFound();
 	}
 
-	const firstImage = product.thumbnail;
+	// const firstImage = product.thumbnail;
 	const description = product?.description ? parser.parse(JSON.parse(product?.description)) : null;
 
 	const variants = product.variants;
@@ -299,15 +300,13 @@ export default async function Page(props: {
 			/>
 			<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-8">
 				<div className="md:col-span-1 lg:col-span-5">
-					{firstImage && (
-						<ProductImageWrapper
-							priority={true}
-							alt={firstImage.alt ?? ""}
-							width={1024}
-							height={1024}
-							src={firstImage.url}
-						/>
-					)}
+					{(() => {
+						const galleryMedia = (product.media || []).map((m) => ({ url: m.url, alt: m.alt ?? null }));
+						const galleryThumb = product.thumbnail
+							? { url: product.thumbnail.url, alt: product.thumbnail.alt ?? null }
+							: null;
+						return <ProductGallery media={galleryMedia} thumbnail={galleryThumb} />;
+					})()}
 				</div>
 				<div className="flex flex-col pt-6 sm:col-span-1 sm:px-6 sm:pt-0 lg:col-span-3 lg:pt-16">
 					<div>

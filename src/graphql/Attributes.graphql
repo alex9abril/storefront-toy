@@ -1,0 +1,37 @@
+query GetFilterableAttributes($first: Int = 50) {
+	attributes(first: $first, filter: { filterableInStorefront: true }) {
+		edges {
+			node {
+				id
+				name
+				slug
+				inputType
+			}
+		}
+	}
+}
+
+query AttributeChoices($slug: String!, $first: Int!, $after: String) {
+	attributes(first: 1, filter: { slugs: [$slug] }) {
+		edges {
+			node {
+				id
+				name
+				slug
+				choices(first: $first, after: $after) {
+					pageInfo {
+						hasNextPage
+						endCursor
+					}
+					edges {
+						node {
+							id
+							name
+							slug
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -24,7 +24,7 @@ export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => 
 			return undefined;
 		}
 
-		return `${min}-${max} business days`;
+		return `${min}-${max} días hábiles`;
 	};
 
 	if (!checkout?.isShippingRequired || collapsed) {
@@ -35,18 +35,18 @@ export const DeliveryMethods: React.FC<CommonSectionProps> = ({ collapsed }) => 
 		<FormProvider form={form}>
 			<Divider />
 			<div className="py-4" data-testid="deliveryMethods">
-				<Title className="mb-2">Delivery methods</Title>
+				<Title className="mb-2">Métodos de envío</Title>
 				{!authenticated && !shippingAddress && (
-					<p>Please fill in shipping address to see available shipping methods</p>
+					<p>Completa la dirección de envío para ver los métodos disponibles</p>
 				)}
 				{authenticated && !shippingAddress && updateState.checkoutShippingUpdate ? (
 					<DeliveryMethodsSkeleton />
 				) : (
-					<SelectBoxGroup label="delivery methods">
+					<SelectBoxGroup label="métodos de envío">
 						{shippingMethods?.map(
 							({ id, name, price, minimumDeliveryDays: min, maximumDeliveryDays: max }) => (
 								<SelectBox key={id} name="selectedMethodId" value={id}>
-									<div className="min-h-12 pointer-events-none flex grow flex-col justify-center">
+									<div className="pointer-events-none flex min-h-12 grow flex-col justify-center">
 										<div className="flex flex-row items-center justify-between self-stretch">
 											<p>{name}</p>
 											<p>{getFormattedMoney(price)}</p>
