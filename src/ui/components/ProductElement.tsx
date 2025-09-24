@@ -1,3 +1,4 @@
+import { ImageOff } from "lucide-react";
 import { LinkWithChannel } from "../atoms/LinkWithChannel";
 import { ProductImageWrapper } from "@/ui/atoms/ProductImageWrapper";
 
@@ -13,8 +14,8 @@ export function ProductElement({
 		<li data-testid="ProductElement" className="card p-6">
 			<LinkWithChannel href={`/products/${product.slug}`} key={product.id}>
 				<div className="flex flex-col gap-4">
-					{product?.thumbnail?.url && (
-						<div className="rounded-xl bg-neutral-100 p-4">
+					<div className="rounded-xl bg-neutral-100 p-4">
+						{product?.thumbnail?.url ? (
 							<ProductImageWrapper
 								loading={loading}
 								src={product.thumbnail.url}
@@ -24,8 +25,13 @@ export function ProductElement({
 								sizes={"768px"}
 								priority={priority}
 							/>
-						</div>
-					)}
+						) : (
+							<div className="flex h-40 w-full items-center justify-center rounded-lg border border-dashed border-neutral-300 sm:h-48">
+								<ImageOff aria-hidden className="h-8 w-8 text-neutral-400" />
+								<span className="sr-only">Sin imagen disponible</span>
+							</div>
+						)}
+					</div>
 					<div>
 						<div className="chip mb-3">{product.category?.name}</div>
 						<h3 className="text-[1.275rem] font-light tracking-tight text-neutral-900">{product.name}</h3>

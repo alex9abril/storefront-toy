@@ -46,10 +46,30 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 			<Hero />
 			<div className="mx-auto max-w-7xl px-6">
 				<VehicleSelectorBanner />
+				{/* Sección de íconos destacados estilo marketplace */}
+				<div className="mt-8 grid grid-cols-2 gap-4 rounded-2xl bg-white p-4 ring-1 ring-neutral-200 sm:grid-cols-3 lg:grid-cols-5">
+					{[
+						{ title: "Envío Rápido" },
+						{ title: "Refacciones Originales" },
+						{ title: "Promociones Exclusivas" },
+						{ title: "Instalación Disponible" },
+						{ title: "Garantía Toyota" },
+					].map((item) => (
+						<div
+							key={item.title}
+							className="flex items-center gap-3 rounded-xl bg-neutral-50 p-3 ring-1 ring-neutral-100"
+						>
+							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EB0A1E]/10 text-[#EB0A1E]">
+								★
+							</div>
+							<p className="text-sm font-semibold text-neutral-800">{item.title}</p>
+						</div>
+					))}
+				</div>
 			</div>
 			<SectionsShowcase channel={params.channel} />
 			<section className="mx-auto max-w-7xl p-8 pb-16">
-				<h2 className="mb-6 text-2xl font-semibold tracking-tight text-neutral-900">Destacados</h2>
+				<h2 className="mb-6 text-2xl font-extrabold tracking-tight text-neutral-900">Ofertas destacadas</h2>
 				<ProductList products={products} />
 			</section>
 		</>

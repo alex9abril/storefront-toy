@@ -47,10 +47,9 @@ export function VehicleSelectorBanner() {
 			.replaceAll("ú", "u")
 			.replaceAll("ñ", "n");
 
-	// Five required dropdowns with slug aliases and labels
+	// Campos de selección (se omite "Marca"; por defecto será TOYOTA)
 	const fields = useMemo(
 		() => [
-			{ key: "marca", label: "Marca", aliases: ["marca"] },
 			{ key: "modelo", label: "Modelo", aliases: ["modelo"] },
 			{ key: "anio", label: "Año", aliases: ["anio", "ano", "año"] },
 			{ key: "acabado", label: "Acabado", aliases: ["acabado"] },
@@ -75,11 +74,17 @@ export function VehicleSelectorBanner() {
 				);
 				setAttributes(list);
 
-				// Preload choices for all attributes we actually find for the five fields
+				// Preload choices para campos visibles y forzar marca = toyota
 				const attributesNeeded: Attr[] = [];
 				for (const f of fields) {
 					const attr = list.find((a) => f.aliases.includes(normalize(a.slug)));
 					if (attr) attributesNeeded.push(attr);
+				}
+				// Detectar atributo de marca para preseleccionar 'toyota' y cargar sus choices (para nombre)
+				const brandAttr = list.find((a) => normalize(a.slug) === "marca");
+				if (brandAttr) {
+					attributesNeeded.push(brandAttr);
+					setSelectedBySlug((prev) => ({ ...prev, [brandAttr.slug]: "toyota" }));
 				}
 
 				for (const att of attributesNeeded) {
@@ -137,7 +142,7 @@ export function VehicleSelectorBanner() {
 					</p>
 				</div>
 			</div>
-			<div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-6">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 md:gap-5 lg:grid-cols-5">
 				{fields.map((f) => {
 					const attr = attributes.find((a) => f.aliases.includes(normalize(a.slug)));
 					const selectKey = attr?.slug || f.key; // fall back to field key if missing
@@ -157,10 +162,10 @@ export function VehicleSelectorBanner() {
 									name={selectKey}
 									aria-label={`Selecciona ${f.label}`}
 									disabled={disabled}
-									className={`h-11 w-full appearance-none rounded-xl border-2 border-dashed bg-white px-3 pr-9 text-sm outline-none transition-all placeholder:text-neutral-500 focus:ring-2 focus:ring-toyota-red dark:bg-neutral-800 ${
+									className={`h-12 w-full appearance-none rounded-xl border bg-white px-3 pr-9 text-sm outline-none transition-all placeholder:text-neutral-500 focus:ring-2 focus:ring-toyota-red dark:bg-neutral-800 ${
 										disabled
-											? "cursor-not-allowed border-neutral-200 text-neutral-400 dark:border-neutral-700"
-											: "border-neutral-200 text-neutral-900 hover:border-neutral-300 dark:border-neutral-700 dark:text-neutral-50"
+											? "cursor-not-allowed border-neutral-300 text-neutral-400 dark:border-neutral-700"
+											: "border-neutral-300 text-neutral-900 hover:border-neutral-400 dark:border-neutral-700 dark:text-neutral-50"
 									}`}
 									value={selectedBySlug[selectKey] || ""}
 									onChange={(e) => setSelectedBySlug((prev) => ({ ...prev, [selectKey]: e.target.value }))}

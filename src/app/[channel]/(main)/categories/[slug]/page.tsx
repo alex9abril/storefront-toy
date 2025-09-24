@@ -7,6 +7,7 @@ import {
 } from "@/lib/utils/listProductsByCategory";
 import { type ProductListByCategoryQuery, type ProductListByCategory_NoChannelArgQuery } from "@/gql/graphql";
 import { ProductList } from "@/ui/components/ProductList";
+import { getWarehouseMode, getConfiguredWarehouseId } from "@/lib/warehouse";
 import { ProductsFilters } from "@/ui/components/ProductsFilters";
 
 export const generateMetadata = async (
@@ -47,8 +48,24 @@ export default async function Page(props: { params: Promise<{ slug: string; chan
 		}
 	}
 
-	const products: ProductsConnection =
+	let products: ProductsConnection =
 		productsConn ?? ({ totalCount: 0, edges: [] as ProductsEdges } as ProductsConnection);
+
+	// Filtrar por almacén en modo single (ocultar productos sin stock en la sucursal)
+	if (getWarehouseMode() === "single") {
+		const configuredId = await getConfiguredWarehouseId();
+		if (configuredId) {
+			products = {
+				totalCount: products.totalCount,
+				edges: products.edges.filter((e) => {
+					const variants = e.node.variants || [];
+					return variants.some((v) =>
+						(v?.stocks || []).some((s) => s?.warehouse?.id === configuredId && (s?.quantity ?? 0) > 0),
+					);
+				}),
+			} as ProductsConnection;
+		}
+	}
 
 	return (
 		<section className="mx-auto grid max-w-7xl grid-cols-1 gap-8 p-8 pb-16 lg:grid-cols-12">
@@ -57,7 +74,7 @@ export default async function Page(props: { params: Promise<{ slug: string; chan
 			</div>
 			<div className="lg:col-span-9">
 				<h1 className="pb-8 text-xl font-semibold">{params.slug}</h1>
-				{products.totalCount === 0 ? (
+				{products.edges.length === 0 ? (
 					<p className="text-sm text-neutral-500">No hay productos en esta categoría</p>
 				) : (
 					<ProductList products={products.edges.map((e) => e.node)} />

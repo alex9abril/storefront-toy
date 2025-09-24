@@ -13,17 +13,20 @@ function Card({
 	Icon: React.ComponentType<{ className?: string }>;
 }) {
 	return (
-		<div className="card flex flex-col justify-between p-6">
+		<div className="card flex flex-col justify-between p-6 ring-1 ring-neutral-200">
 			<div className="flex items-center gap-3">
-				<div className="rounded-full bg-neutral-100 p-3">
-					<Icon className="h-5 w-5 text-neutral-700" />
+				<div className="rounded-full bg-[#EB0A1E]/10 p-3">
+					<Icon className="h-5 w-5 text-[#EB0A1E]" />
 				</div>
 				<h3 className="text-lg font-semibold text-neutral-900">{title}</h3>
 			</div>
 			<p className="mt-3 text-sm text-neutral-600">{description}</p>
 			<div className="mt-6">
-				<Link className="btn-dark" href={href}>
-					Explorar
+				<Link
+					className="inline-flex items-center justify-center rounded-lg bg-[#EB0A1E] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-red-700"
+					href={href}
+				>
+					Ver más
 				</Link>
 			</div>
 		</div>
@@ -33,7 +36,9 @@ function Card({
 export function SectionsShowcase({ channel }: { channel: string }) {
 	return (
 		<section className="mx-auto max-w-7xl p-8">
-			<h2 className="mb-6 text-2xl font-semibold tracking-tight text-neutral-900">Explora por secciones</h2>
+			<h2 className="mb-6 text-2xl font-extrabold tracking-tight text-neutral-900">
+				Descubre por categorías
+			</h2>
 			<div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 				<Card
 					title="Refacciones"

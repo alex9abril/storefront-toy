@@ -36,6 +36,12 @@ query ProductListByCategory($category: ID!, $channel: String!, $first: Int = 100
 					id
 					name
 					sku
+					stocks {
+						quantity
+						warehouse {
+							id
+						}
+					}
 				}
 				media {
 					url
@@ -79,6 +85,12 @@ query ProductListByCategory_NoChannelArg($slug: String!, $first: Int = 100) {
 						id
 						name
 						sku
+						stocks {
+							quantity
+							warehouse {
+								id
+							}
+						}
 						channelListings {
 							channel {
 								slug

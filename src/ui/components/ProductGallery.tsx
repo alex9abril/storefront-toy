@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ImageOff } from "lucide-react";
 import Image from "next/image";
 
 export type ProductMedia = { url: string; alt?: string | null }[];
@@ -15,7 +16,18 @@ export function ProductGallery({
 	const all = (media && media.length ? media : []).length ? media : thumbnail ? [thumbnail] : [];
 	const [index, setIndex] = useState(0);
 
-	if (!all.length) return null;
+	if (!all.length) {
+		return (
+			<div className="relative w-full">
+				<div className="relative aspect-square w-full overflow-hidden rounded bg-neutral-50">
+					<div className="flex h-full w-full items-center justify-center border border-dashed border-neutral-300">
+						<ImageOff aria-hidden className="h-10 w-10 text-neutral-400" />
+						<span className="sr-only">Sin imagen disponible</span>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex items-center gap-4">

@@ -1,0 +1,61 @@
+## Reglas de trabajo para este repositorio (Cursor Rules)
+
+Estas reglas ayudan a evitar errores en el pre-commit (lint-staged, ESLint, Prettier) y a mantener la coherencia del proyecto.
+
+### Objetivo
+- Mantener el código listo para commit sin romper el pre-commit ni la build.
+- Respetar las decisiones de arquitectura del proyecto (Next.js App Router, GraphQL, TypeScript estricto, Tailwind).
+
+### Lint/Formato (obligatorio)
+- No dejes imports o variables sin usar. Si eliminas un bloque, elimina también sus imports.
+- Prefieresi exports con nombre en componentes y utilidades. Evita `export default` (regla import/no-default-export).
+- No introduzcas tipos `any`. Usa los tipos generados por GraphQL o infiere de forma segura.
+- Mantén el estilo existente del archivo: respeta tabs/espacios y no re-formatees secciones no relacionadas.
+- No añadas comentarios largos dentro del JSX para explicar cambios; deja el código claro y los comentarios encima si son necesarios.
+- Quita logs temporales (`console.log`). Si son necesarios para errores, usa `console.error` con contexto y elimínalos antes de commit salvo que sean permanentes.
+
+### Next.js (App Router)
+- Distingue correctamente entre Server y Client Components:
+  - Si el archivo usa hooks de React o APIs del navegador, añade `"use client"` en la primera línea.
+  - No uses `next/dynamic` con `ssr: false` dentro de Server Components.
+- Evita formularios anidados: nunca coloques un `<form>` dentro de otro `<form>`.
+- Usa `LinkWithChannel` para enlaces internos que dependan del canal.
+
+### GraphQL
+- Cuando cambies consultas/fragmentos `.graphql`, ejecuta codegen antes de depender de nuevos tipos.
+- Usa siempre `executeGraphQL` y pasa `withAuth: false` salvo que se requiera explícitamente usar auth/app token.
+- Reutiliza los fragments existentes cuando sea posible.
+
+### Internacionalización/Texto
+- El checkout y UI deben mostrarse en español por defecto (es-MX). No introduzcas cadenas en inglés nuevas.
+- En formularios/direcciones usa etiquetas y mensajes en español consistentes con las secciones existentes.
+
+### Tailwind/UI
+- No uses clases que no existan; evita clases personalizadas si hay utilidades Tailwind equivalentes.
+- Mantén consistencia visual con los componentes existentes (bordes, radios, espacios y colores).
+
+### Almacenes (Warehouse)
+- Usa utilidades de `src/lib/warehouse.ts`: `getWarehouseMode`, `getSelectedWarehouseId`, `setSelectedWarehouseId`.
+- No rompas la cookie `warehouseId` (path `/`, `sameSite: "lax"`).
+- En modo `single`, muestra el nombre de la sucursal configurada; en modo `all`, permite seleccionar y persiste la selección.
+
+### Reglas de seguridad/errores
+- Maneja errores de GraphQL: revisa `result.errors` y no asumas éxito.
+- No atrapes errores sin tratarlos (evita `catch {}` vacío). Si no hay manejo, al menos registra con contexto.
+
+### Antes de crear un commit
+- Ejecuta/asegúrate de que pasa el pre-commit:
+  - ESLint sin errores en archivos modificados.
+  - Prettier aplicado.
+  - Si cambiaste `.graphql`, corre codegen.
+- Si cambiaste un export por defecto a uno nombrado, actualiza todas las importaciones correspondientes.
+
+### Convenciones del repositorio
+- Idioma del código y UI: español para textos visibles.
+- Rutas internas: siempre con `LinkWithChannel` si dependen del canal.
+- No añadas dependencias sin justificar; prefiere utilidades existentes.
+
+---
+Siguiendo estas reglas, los commits no deberían fallar en el hook de pre-commit y el código se mantendrá consistente.
+
+
