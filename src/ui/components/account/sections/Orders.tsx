@@ -69,6 +69,13 @@ export function Orders() {
 								created
 								status
 								paymentStatus
+								trackingClientId
+								fulfillments {
+									id
+									status
+									trackingNumber
+									carrier
+								}
 								total {
 									gross {
 										amount
@@ -136,6 +143,31 @@ export function Orders() {
 	// Calcular total de artículos
 	const getTotalItems = (lines: any[]) => {
 		return lines.reduce((total, line) => total + line.quantity, 0);
+	};
+
+	// Obtener número de seguimiento
+	const getTrackingNumber = (order: any) => {
+		// Prioridad: trackingClientId > fulfillments[0].trackingNumber
+		if (order.trackingClientId) {
+			return order.trackingClientId;
+		}
+		if (order.fulfillments && order.fulfillments.length > 0) {
+			const fulfillment = order.fulfillments[0];
+			return fulfillment.trackingNumber;
+		}
+		return null;
+	};
+
+	// Obtener información del carrier
+	const getCarrierInfo = (order: any) => {
+		if (order.fulfillments && order.fulfillments.length > 0) {
+			const fulfillment = order.fulfillments[0];
+			return {
+				carrier: fulfillment.carrier,
+				status: fulfillment.status,
+			};
+		}
+		return null;
 	};
 
 	if (fetching) {
@@ -240,6 +272,32 @@ export function Orders() {
 									</div>
 								</div>
 								<div className="flex items-center gap-4">
+									{/* Información de seguimiento */}
+									{getTrackingNumber(order) && (
+										<div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2">
+											<svg
+												className="h-4 w-4 text-blue-600"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={2}
+													d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+												/>
+											</svg>
+											<div>
+												<p className="text-xs font-medium text-blue-900">Seguimiento</p>
+												<p className="font-mono text-sm text-blue-700">{getTrackingNumber(order)}</p>
+												{getCarrierInfo(order)?.carrier && (
+													<p className="text-xs text-blue-600">{getCarrierInfo(order).carrier}</p>
+												)}
+											</div>
+										</div>
+									)}
+
 									<div className="text-right">
 										<p className="text-sm font-normal text-gray-500">
 											{getTotalItems(order.lines)} artículo{getTotalItems(order.lines) > 1 ? "s" : ""}

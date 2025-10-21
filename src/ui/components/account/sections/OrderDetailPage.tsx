@@ -23,6 +23,13 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 					created
 					status
 					paymentStatus
+					trackingClientId
+					fulfillments {
+						id
+						status
+						trackingNumber
+						carrier
+					}
 					total {
 						gross {
 							amount
@@ -129,6 +136,31 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 		}).format(amount);
 	};
 
+	// Obtener número de seguimiento
+	const getTrackingNumber = (order: any) => {
+		// Prioridad: trackingClientId > fulfillments[0].trackingNumber
+		if (order.trackingClientId) {
+			return order.trackingClientId;
+		}
+		if (order.fulfillments && order.fulfillments.length > 0) {
+			const fulfillment = order.fulfillments[0];
+			return fulfillment.trackingNumber;
+		}
+		return null;
+	};
+
+	// Obtener información del carrier
+	const getCarrierInfo = (order: any) => {
+		if (order.fulfillments && order.fulfillments.length > 0) {
+			const fulfillment = order.fulfillments[0];
+			return {
+				carrier: fulfillment.carrier,
+				status: fulfillment.status,
+			};
+		}
+		return null;
+	};
+
 	const getStatusColor = (status: string) => {
 		const statusColors: Record<string, string> = {
 			UNFULFILLED: "bg-yellow-100 text-yellow-800",
@@ -224,7 +256,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 		);
 	}
 
-	const order = data.order ;
+	const order = data.order;
 
 	return (
 		<div className="space-y-6">
@@ -315,6 +347,52 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 					</span>
 				</div>
 			</div>
+
+			{/* Información de seguimiento */}
+			{getTrackingNumber(order) && (
+				<div className="rounded-lg border border-blue-200 bg-blue-50 p-6">
+					<div className="flex items-start gap-4">
+						<div className="flex-shrink-0">
+							<svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+								/>
+							</svg>
+						</div>
+						<div className="flex-1">
+							<h3 className="mb-2 text-lg font-medium text-blue-900">Información de Seguimiento</h3>
+							<div className="space-y-2">
+								<div className="flex items-center gap-2">
+									<span className="text-sm font-medium text-blue-800">Número de seguimiento:</span>
+									<span className="rounded bg-blue-100 px-2 py-1 font-mono text-sm text-blue-900">
+										{getTrackingNumber(order)}
+									</span>
+								</div>
+								{getCarrierInfo(order)?.carrier && (
+									<div className="flex items-center gap-2">
+										<span className="text-sm font-medium text-blue-800">Transportista:</span>
+										<span className="text-sm text-blue-700">{getCarrierInfo(order).carrier}</span>
+									</div>
+								)}
+								{getCarrierInfo(order)?.status && (
+									<div className="flex items-center gap-2">
+										<span className="text-sm font-medium text-blue-800">Estado del envío:</span>
+										<span className="text-sm text-blue-700">{getCarrierInfo(order).status}</span>
+									</div>
+								)}
+							</div>
+							<div className="mt-4">
+								<p className="text-sm text-blue-700">
+									Puedes usar este número para rastrear tu paquete en el sitio web del transportista.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{/* Productos del pedido */}
 			<div className="rounded-lg border border-gray-200 bg-white">
