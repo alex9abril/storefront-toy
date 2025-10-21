@@ -74,7 +74,6 @@ export function Orders() {
 									id
 									status
 									trackingNumber
-									carrier
 								}
 								total {
 									gross {
@@ -158,12 +157,11 @@ export function Orders() {
 		return null;
 	};
 
-	// Obtener información del carrier
-	const getCarrierInfo = (order: any) => {
+	// Obtener información del fulfillment
+	const getFulfillmentInfo = (order: any) => {
 		if (order.fulfillments && order.fulfillments.length > 0) {
 			const fulfillment = order.fulfillments[0];
 			return {
-				carrier: fulfillment.carrier,
 				status: fulfillment.status,
 			};
 		}
@@ -291,8 +289,8 @@ export function Orders() {
 											<div>
 												<p className="text-xs font-medium text-blue-900">Seguimiento</p>
 												<p className="font-mono text-sm text-blue-700">{getTrackingNumber(order)}</p>
-												{getCarrierInfo(order)?.carrier && (
-													<p className="text-xs text-blue-600">{getCarrierInfo(order).carrier}</p>
+												{getFulfillmentInfo(order)?.status && (
+													<p className="text-xs text-blue-600">Estado: {getFulfillmentInfo(order).status}</p>
 												)}
 											</div>
 										</div>

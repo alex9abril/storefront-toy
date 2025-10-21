@@ -28,7 +28,6 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 						id
 						status
 						trackingNumber
-						carrier
 					}
 					total {
 						gross {
@@ -149,12 +148,11 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 		return null;
 	};
 
-	// Obtener información del carrier
-	const getCarrierInfo = (order: any) => {
+	// Obtener información del fulfillment
+	const getFulfillmentInfo = (order: any) => {
 		if (order.fulfillments && order.fulfillments.length > 0) {
 			const fulfillment = order.fulfillments[0];
 			return {
-				carrier: fulfillment.carrier,
 				status: fulfillment.status,
 			};
 		}
@@ -371,16 +369,10 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 										{getTrackingNumber(order)}
 									</span>
 								</div>
-								{getCarrierInfo(order)?.carrier && (
-									<div className="flex items-center gap-2">
-										<span className="text-sm font-medium text-blue-800">Transportista:</span>
-										<span className="text-sm text-blue-700">{getCarrierInfo(order).carrier}</span>
-									</div>
-								)}
-								{getCarrierInfo(order)?.status && (
+								{getFulfillmentInfo(order)?.status && (
 									<div className="flex items-center gap-2">
 										<span className="text-sm font-medium text-blue-800">Estado del envío:</span>
-										<span className="text-sm text-blue-700">{getCarrierInfo(order).status}</span>
+										<span className="text-sm text-blue-700">{getFulfillmentInfo(order).status}</span>
 									</div>
 								)}
 							</div>
