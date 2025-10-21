@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSaleorAuthContext } from "@saleor/auth-sdk/react";
 import { ToastContainer } from "./ToastContainer";
-import { getServerAuthClient } from "@/app/config";
 import { useToast } from "@/hooks/useToast";
 
 export function LoginForm() {
@@ -12,6 +12,7 @@ export function LoginForm() {
 	const [showPassword, setShowPassword] = useState(false);
 	const router = useRouter();
 	const { toasts, showSuccess, showError, removeToast } = useToast();
+	const { signIn } = useSaleorAuthContext();
 
 	const handleSubmit = async (formData: FormData) => {
 		setIsLoading(true);
@@ -23,13 +24,15 @@ export function LoginForm() {
 
 			if (!email || !password) {
 				setError("Email y contraseña son requeridos");
+				showError("Email y contraseña son requeridos");
 				return;
 			}
 
-			const { data } = await (await getServerAuthClient()).signIn({ email, password }, { cache: "no-store" });
+			// Usar el contexto de autenticación del cliente, igual que el checkout
+			const result = await signIn({ email, password });
 
-			if (data.tokenCreate.errors.length > 0) {
-				const errorMessage = data.tokenCreate.errors.map((error) => error.message).join(", ");
+			if (result.data?.tokenCreate?.errors?.length > 0) {
+				const errorMessage = result.data.tokenCreate.errors.map((error) => error.message).join(", ");
 				setError(errorMessage);
 				showError(errorMessage);
 				return;

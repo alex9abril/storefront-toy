@@ -3,10 +3,11 @@
 import { Fragment } from "react";
 import clsx from "clsx";
 import { Menu, Transition } from "@headlessui/react";
+import { useSaleorAuthContext } from "@saleor/auth-sdk/react";
+import { useRouter } from "next/navigation";
 import { UserInfo } from "./components/UserInfo";
 import { UserAvatar } from "./components/UserAvatar";
 import { type UserDetailsFragment } from "@/gql/graphql";
-import { logout } from "@/app/actions";
 import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 
 type Props = {
@@ -14,6 +15,20 @@ type Props = {
 };
 
 export function UserMenu({ user }: Props) {
+	const { signOut } = useSaleorAuthContext();
+	const router = useRouter();
+
+	const handleLogout = () => {
+		try {
+			signOut();
+			// Redirigir al home después del logout
+			router.push("/");
+			router.refresh();
+		} catch (error) {
+			console.error("Error al cerrar sesión:", error);
+		}
+	};
+
 	return (
 		<Menu as="div" className="relative">
 			<Menu.Button className="relative flex rounded-full bg-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-neutral-800">
@@ -35,13 +50,26 @@ export function UserMenu({ user }: Props) {
 						<Menu.Item>
 							{({ active }) => (
 								<LinkWithChannel
+									href="/account"
+									className={clsx(
+										active && "bg-neutral-100",
+										"block px-4 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-700",
+									)}
+								>
+									Mi Cuenta
+								</LinkWithChannel>
+							)}
+						</Menu.Item>
+						<Menu.Item>
+							{({ active }) => (
+								<LinkWithChannel
 									href="/orders"
 									className={clsx(
 										active && "bg-neutral-100",
 										"block px-4 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-700",
 									)}
 								>
-									My orders
+									Mis Pedidos
 								</LinkWithChannel>
 							)}
 						</Menu.Item>
@@ -49,17 +77,15 @@ export function UserMenu({ user }: Props) {
 					<div className="flex flex-col px-1 py-1">
 						<Menu.Item>
 							{({ active }) => (
-								<form action={logout}>
-									<button
-										type="submit"
-										className={clsx(
-											active && "bg-neutral-100",
-											"block px-4 py-2 text-start text-sm font-medium text-neutral-500 hover:text-neutral-700",
-										)}
-									>
-										Log Out
-									</button>
-								</form>
+								<button
+									onClick={handleLogout}
+									className={clsx(
+										active && "bg-neutral-100",
+										"block w-full px-4 py-2 text-start text-sm font-medium text-neutral-500 hover:text-neutral-700",
+									)}
+								>
+									Log Out
+								</button>
 							)}
 						</Menu.Item>
 					</div>

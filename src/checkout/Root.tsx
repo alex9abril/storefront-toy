@@ -1,40 +1,16 @@
 "use client";
 import { ErrorBoundary } from "react-error-boundary";
-import {
-	type Client,
-	Provider as UrqlProvider,
-	cacheExchange,
-	createClient,
-	dedupExchange,
-	fetchExchange,
-} from "urql";
-
+import { Provider as UrqlProvider } from "urql";
 import { ToastContainer } from "react-toastify";
-import { useAuthChange, useSaleorAuthContext } from "@saleor/auth-sdk/react";
-import { useState } from "react";
 import { alertsContainerProps } from "./hooks/useAlerts/consts";
 import { RootViews } from "./views/RootViews";
+import { useUrqlClient } from "@/ui/components/AuthProvider";
 import { PageNotFound } from "@/checkout/views/PageNotFound";
 import "./index.css";
 
-export const Root = ({ saleorApiUrl }: { saleorApiUrl: string }) => {
-	const saleorAuthClient = useSaleorAuthContext();
-
-	const makeUrqlClient = () =>
-		createClient({
-			url: saleorApiUrl,
-			suspense: true,
-			requestPolicy: "cache-first",
-			fetch: (input, init) => saleorAuthClient.fetchWithAuth(input as NodeJS.fetch.RequestInfo, init),
-			exchanges: [dedupExchange, cacheExchange, fetchExchange],
-		});
-
-	const [urqlClient, setUrqlClient] = useState<Client>(makeUrqlClient());
-	useAuthChange({
-		saleorApiUrl,
-		onSignedOut: () => setUrqlClient(makeUrqlClient()),
-		onSignedIn: () => setUrqlClient(makeUrqlClient()),
-	});
+export const Root = () => {
+	// Usar el contexto de urql del AuthProvider global
+	const urqlClient = useUrqlClient();
 
 	return (
 		<UrqlProvider value={urqlClient}>

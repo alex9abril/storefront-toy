@@ -3,6 +3,7 @@ import "./globals.css";
 import { Suspense, type ReactNode } from "react";
 import { type Metadata } from "next";
 import { DraftModeNotification } from "@/ui/components/DraftModeNotification";
+import { AuthProvider } from "@/ui/components/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", weight: ["400", "500", "600", "700"] });
 
@@ -31,10 +32,12 @@ export default function RootLayout(props: { children: ReactNode }) {
 				)}
 			</head>
 			<body className={`${inter.className} min-h-dvh font-helvetica`}>
-				{children}
-				<Suspense>
-					<DraftModeNotification />
-				</Suspense>
+				<AuthProvider>
+					{children}
+					<Suspense>
+						<DraftModeNotification />
+					</Suspense>
+				</AuthProvider>
 			</body>
 		</html>
 	);

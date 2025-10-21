@@ -11,6 +11,7 @@ import {
 	createClient,
 	dedupExchange,
 	fetchExchange,
+	useClient,
 } from "urql";
 
 const saleorApiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
@@ -50,3 +51,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		</SaleorAuthProvider>
 	);
 }
+
+// Hook para acceder al cliente de urql desde el checkout
+export const useUrqlClient = () => {
+	return useClient();
+};
