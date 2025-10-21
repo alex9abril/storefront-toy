@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "urql";
 
-// Datos de ejemplo para las direcciones
-const mockAddresses = [
+// Datos de ejemplo para las direcciones (ya no se usan, se obtienen de Saleor)
+const _mockAddresses = [
 	{
 		id: "1",
 		type: "Casa",
@@ -43,26 +44,62 @@ export function Addresses() {
 	const [showAddForm, setShowAddForm] = useState(false);
 	const [_editingAddress, setEditingAddress] = useState<string | null>(null);
 	const [newAddress, setNewAddress] = useState({
-		type: "Casa",
-		name: "",
-		address: "",
+		firstName: "",
+		lastName: "",
+		companyName: "",
+		streetAddress1: "",
+		streetAddress2: "",
 		city: "",
-		state: "",
-		zipCode: "",
+		postalCode: "",
+		country: "MX",
 		phone: "",
 	});
+
+	// Consulta GraphQL para obtener direcciones del usuario
+	const [{ data, fetching, error }] = useQuery({
+		query: `
+			query UserAddresses {
+				me {
+					id
+					addresses {
+						id
+						firstName
+						lastName
+						companyName
+						streetAddress1
+						streetAddress2
+						city
+						postalCode
+						country {
+							code
+							country
+						}
+						phone
+						isDefaultShippingAddress
+						isDefaultBillingAddress
+					}
+				}
+			}
+		`,
+		requestPolicy: "cache-first",
+	});
+
+	// Obtener direcciones de Saleor
+	const addresses = data?.me?.addresses || [];
 
 	const handleAddAddress = () => {
 		// Aquí implementarías la lógica para agregar la dirección
 		console.log("Agregar dirección:", newAddress);
 		setShowAddForm(false);
 		setNewAddress({
-			type: "Casa",
-			name: "",
-			address: "",
+			firstName: "",
+			lastName: "",
+			companyName: "",
+			streetAddress1: "",
+			streetAddress2: "",
 			city: "",
-			state: "",
-			zipCode: "",
+			postalCode: "",
+			country: "MX",
 			phone: "",
 		});
 	};
@@ -81,6 +118,53 @@ export function Addresses() {
 		// Aquí implementarías la lógica para establecer como dirección por defecto
 		console.log("Establecer como predeterminada:", id);
 	};
+
+	// Estados de carga y error
+	if (fetching) {
+		return (
+			<div className="p-6">
+				<div className="mb-6">
+					<h2 className="text-xl font-normal text-gray-900">Mis Direcciones</h2>
+					<p className="mt-1 text-sm font-normal text-gray-500">Administra tus direcciones de envío</p>
+				</div>
+				<div className="space-y-4">
+					{[1, 2, 3].map((i) => (
+						<div key={i} className="animate-pulse rounded-lg border border-gray-200 bg-white p-6">
+							<div className="mb-2 h-4 w-1/4 rounded bg-gray-200"></div>
+							<div className="h-3 w-1/2 rounded bg-gray-200"></div>
+						</div>
+					))}
+				</div>
+			</div>
+		);
+	}
+
+	if (error) {
+		return (
+			<div className="p-6">
+				<div className="mb-6">
+					<h2 className="text-xl font-normal text-gray-900">Mis Direcciones</h2>
+					<p className="mt-1 text-sm font-normal text-gray-500">Administra tus direcciones de envío</p>
+				</div>
+				<div className="rounded-lg border border-red-200 bg-red-50 p-6">
+					<div className="flex items-center">
+						<svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+							/>
+						</svg>
+						<div className="ml-3">
+							<h3 className="text-sm font-medium text-red-800">Error al cargar direcciones</h3>
+							<p className="mt-1 text-sm text-red-700">{error.message}</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="p-6">
@@ -103,35 +187,56 @@ export function Addresses() {
 					<h3 className="mb-4 text-lg font-semibold text-gray-900">Nueva Dirección</h3>
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
-							<label className="block text-sm font-medium text-gray-700">Tipo de Dirección</label>
-							<select
-								value={newAddress.type}
-								onChange={(e) => setNewAddress({ ...newAddress, type: e.target.value })}
-								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-							>
-								<option value="Casa">Casa</option>
-								<option value="Oficina">Oficina</option>
-								<option value="Otro">Otro</option>
-							</select>
-						</div>
-						<div>
 							<label className="block text-sm font-medium text-gray-700">Nombre</label>
 							<input
 								type="text"
-								value={newAddress.name}
-								onChange={(e) => setNewAddress({ ...newAddress, name: e.target.value })}
+								value={newAddress.firstName}
+								onChange={(e) => setNewAddress({ ...newAddress, firstName: e.target.value })}
 								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-								placeholder="Ej: Casa Principal"
+								placeholder="Nombre"
+								required
+							/>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700">Apellido</label>
+							<input
+								type="text"
+								value={newAddress.lastName}
+								onChange={(e) => setNewAddress({ ...newAddress, lastName: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Apellido"
+								required
+							/>
+						</div>
+						<div className="md:col-span-2">
+							<label className="block text-sm font-medium text-gray-700">Empresa (Opcional)</label>
+							<input
+								type="text"
+								value={newAddress.companyName}
+								onChange={(e) => setNewAddress({ ...newAddress, companyName: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Nombre de la empresa"
 							/>
 						</div>
 						<div className="md:col-span-2">
 							<label className="block text-sm font-medium text-gray-700">Dirección</label>
 							<input
 								type="text"
-								value={newAddress.address}
-								onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
+								value={newAddress.streetAddress1}
+								onChange={(e) => setNewAddress({ ...newAddress, streetAddress1: e.target.value })}
 								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
 								placeholder="Calle, número, colonia"
+								required
+							/>
+						</div>
+						<div className="md:col-span-2">
+							<label className="block text-sm font-medium text-gray-700">Dirección 2 (Opcional)</label>
+							<input
+								type="text"
+								value={newAddress.streetAddress2}
+								onChange={(e) => setNewAddress({ ...newAddress, streetAddress2: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Apartamento, suite, etc."
 							/>
 						</div>
 						<div>
@@ -141,25 +246,33 @@ export function Addresses() {
 								value={newAddress.city}
 								onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
 								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-							/>
-						</div>
-						<div>
-							<label className="block text-sm font-medium text-gray-700">Estado</label>
-							<input
-								type="text"
-								value={newAddress.state}
-								onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Ciudad"
+								required
 							/>
 						</div>
 						<div>
 							<label className="block text-sm font-medium text-gray-700">Código Postal</label>
 							<input
 								type="text"
-								value={newAddress.zipCode}
-								onChange={(e) => setNewAddress({ ...newAddress, zipCode: e.target.value })}
+								value={newAddress.postalCode}
+								onChange={(e) => setNewAddress({ ...newAddress, postalCode: e.target.value })}
 								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Código Postal"
+								required
 							/>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700">País</label>
+							<select
+								value={newAddress.country}
+								onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								required
+							>
+								<option value="MX">México</option>
+								<option value="US">Estados Unidos</option>
+								<option value="CA">Canadá</option>
+							</select>
 						</div>
 						<div>
 							<label className="block text-sm font-medium text-gray-700">Teléfono</label>
@@ -168,7 +281,7 @@ export function Addresses() {
 								value={newAddress.phone}
 								onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
 								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-								placeholder="+52 55 1234-5678"
+								placeholder="Teléfono"
 							/>
 						</div>
 					</div>
@@ -191,25 +304,41 @@ export function Addresses() {
 
 			{/* Lista de direcciones */}
 			<div className="grid gap-4 md:grid-cols-2">
-				{mockAddresses.map((address) => (
+				{addresses.map((address: any) => (
 					<div key={address.id} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
 						<div className="flex items-start justify-between">
 							<div className="flex-1">
 								<div className="flex items-center gap-2">
-									<h3 className="text-lg font-semibold text-gray-900">{address.name}</h3>
-									{address.isDefault && (
+									<h3 className="text-lg font-semibold text-gray-900">
+										{address.firstName} {address.lastName}
+									</h3>
+									{(address.isDefaultShippingAddress || address.isDefaultBillingAddress) && (
 										<span className="rounded-full bg-[#EB0A1E] px-2 py-1 text-xs font-medium text-white">
 											Predeterminada
 										</span>
 									)}
 								</div>
-								<p className="text-sm text-gray-600">{address.type}</p>
+								{address.companyName && <p className="text-sm text-gray-600">{address.companyName}</p>}
 								<div className="mt-2 text-sm text-gray-700">
-									<p>{address.address}</p>
+									<p>{address.streetAddress1}</p>
+									{address.streetAddress2 && <p>{address.streetAddress2}</p>}
 									<p>
-										{address.city}, {address.state} {address.zipCode}
+										{address.city}, {address.postalCode}
 									</p>
-									<p className="mt-1">{address.phone}</p>
+									<p>{address.country.country}</p>
+									{address.phone && <p className="mt-1">Tel: {address.phone}</p>}
+								</div>
+								<div className="mt-2 flex gap-2">
+									{address.isDefaultShippingAddress && (
+										<span className="inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+											Envío
+										</span>
+									)}
+									{address.isDefaultBillingAddress && (
+										<span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+											Facturación
+										</span>
+									)}
 								</div>
 							</div>
 							<div className="ml-4 flex flex-col gap-2">
@@ -219,7 +348,7 @@ export function Addresses() {
 								>
 									Editar
 								</button>
-								{!address.isDefault && (
+								{!address.isDefaultShippingAddress && !address.isDefaultBillingAddress && (
 									<button
 										onClick={() => handleSetDefault(address.id)}
 										className="rounded-lg bg-[#EB0A1E] px-3 py-1 text-xs font-medium text-white hover:bg-[#C4081A]"
@@ -240,7 +369,7 @@ export function Addresses() {
 			</div>
 
 			{/* Mensaje si no hay direcciones */}
-			{mockAddresses.length === 0 && (
+			{addresses.length === 0 && (
 				<div className="py-12 text-center">
 					<svg
 						className="mx-auto h-12 w-12 text-gray-400"
