@@ -5,11 +5,17 @@ export function QuantityPicker({
 	available,
 	action,
 	channel,
+	variantId,
+	warehouseId,
+	warehouseName,
 }: {
 	value?: number;
 	available: number;
 	action: (formData: FormData) => void;
 	channel: string;
+	variantId?: string;
+	warehouseId?: string;
+	warehouseName?: string;
 }) {
 	const maxOptions = Math.max(0, Math.floor(available || 0));
 	const initial = Math.min(Math.max(1, value || 1), Math.max(1, maxOptions));
@@ -17,6 +23,10 @@ export function QuantityPicker({
 	return (
 		<form action={action} className="mt-6 flex flex-col gap-2">
 			<input type="hidden" name="channel" value={channel} />
+			{variantId && <input type="hidden" name="variantId" value={variantId} />}
+			<input type="hidden" name="availableAtSelected" value={available} />
+			{warehouseId && <input type="hidden" name="warehouseId" value={warehouseId} />}
+			{warehouseName && <input type="hidden" name="warehouseName" value={warehouseName} />}
 			<div className="flex items-center gap-3">
 				<label className="text-sm text-neutral-700">Cantidad:</label>
 				<select

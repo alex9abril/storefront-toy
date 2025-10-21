@@ -16,7 +16,7 @@ const ErrorMessage = ({ message }: { message: string }) => {
 const SuccessMessage = ({ message }: { message: string }) => {
 	return (
 		<>
-			<p color="success" className="mr-1">
+			<p color="success" className="mr-1" style={{ color: "#757575", fontSize: "14px", fontWeight: 300 }}>
 				{message}
 			</p>
 			<SuccessIcon />
@@ -29,17 +29,17 @@ export const PaymentSection = () => {
 	const paymentStatus = usePaymentStatus(order);
 
 	return (
-		<Section title="Payment">
+		<Section title="Pago">
 			<div data-testid="paymentStatus">
 				<div className="flex flex-row items-center">
 					{paymentStatus === "authorized" && (
-						<SuccessMessage message="We've received your payment authorization" />
+						<SuccessMessage message="Hemos recibido tu autorización de pago" />
 					)}
 
-					{paymentStatus === "paidInFull" && <SuccessMessage message="We've received your payment" />}
+					{paymentStatus === "paidInFull" && <SuccessMessage message="Hemos recibido tu pago" />}
 
 					{paymentStatus === "overpaid" && (
-						<ErrorMessage message="Your order has been paid more than owed. This may be an error during payment. Contact your shop staff for help." />
+						<ErrorMessage message="Tu pedido ha sido pagado por más de lo debido. Esto puede ser un error durante el pago. Contacta al personal de la tienda para obtener ayuda." />
 					)}
 				</div>
 			</div>

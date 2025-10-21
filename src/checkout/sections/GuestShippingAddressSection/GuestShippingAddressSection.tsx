@@ -14,7 +14,7 @@ export const GuestShippingAddressSection = () => {
 	return (
 		<FormProvider form={form}>
 			<AddressForm
-				title="Shipping address"
+				title="Dirección de envío"
 				availableCountries={availableShippingCountries}
 				fieldProps={{
 					onChange: handleChange,

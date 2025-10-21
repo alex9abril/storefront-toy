@@ -8,7 +8,7 @@ interface LineItemQuantitySelectorProps {
 export const SummaryItemMoneySection: React.FC<LineItemQuantitySelectorProps> = ({ line }) => {
 	return (
 		<div className="flex flex-col items-end">
-			<p>Qty: {line.quantity}</p>
+			<p style={{ color: "#757575", fontSize: "14px", fontWeight: 300 }}>Cantidad: {line.quantity}</p>
 			<SummaryItemMoneyInfo {...line} undiscountedUnitPrice={line.undiscountedUnitPrice.gross} />
 		</div>
 	);

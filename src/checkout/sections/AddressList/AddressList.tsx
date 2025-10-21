@@ -35,12 +35,12 @@ export const AddressList: React.FC<AddressListProps> = ({
 		<FormProvider form={form}>
 			<div className="flex flex-col">
 				<Title>{title}</Title>
-				{addressList.length < 1 && <p className="mb-3">You currently have no saved addresses.</p>}
+				{addressList.length < 1 && <p className="mb-3">Actualmente no tienes direcciones guardadas.</p>}
 				<Button
 					variant="secondary"
 					ariaLabel="add address"
 					onClick={onAddAddressClick}
-					label="Add address"
+					label="Agregar dirección"
 					className="w-full"
 				/>
 				<SelectBoxGroup label="user addresses" className="mt-2">

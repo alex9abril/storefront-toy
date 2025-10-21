@@ -12,6 +12,7 @@ import { executeGraphQL } from "@/lib/graphql";
 import { formatMoney, formatMoneyRange } from "@/lib/utils";
 import {
 	CheckoutAddLineDocument,
+	CheckoutLineUpdateMetadataDocument,
 	ProductDetailsDocument,
 	ProductListDocument,
 	WarehousesDocument,
@@ -177,6 +178,13 @@ export default async function Page(props: {
 
 		const channelFromForm = formData?.get("channel") as string | undefined;
 		const channel = channelFromForm || params.channel;
+		const variantId = formData?.get("variantId") as string | undefined;
+		const availableAtSelected = formData?.get("availableAtSelected")
+			? Number(formData.get("availableAtSelected"))
+			: 0;
+		const warehouseId = formData?.get("warehouseId") as string | undefined;
+		const warehouseName = formData?.get("warehouseName") as string | undefined;
+
 		const checkout = await Checkout.findOrCreate({
 			checkoutId: await Checkout.getIdFromCookies(channel),
 			channel,
@@ -188,7 +196,8 @@ export default async function Page(props: {
 
 		await Checkout.saveIdToCookie(channel, checkout.id);
 
-		if (!selectedVariantID) {
+		if (!variantId) {
+			console.error("No variant ID provided");
 			return;
 		}
 
@@ -196,7 +205,7 @@ export default async function Page(props: {
 		const requested = formData?.get("quantity") ? Number(formData.get("quantity")) : 1;
 		// Current quantity of this variant already in checkout
 		const currentInCheckout = (checkout.lines || [])
-			.filter((l) => l?.variant?.id === selectedVariantID)
+			.filter((l) => l?.variant?.id === variantId)
 			.reduce((sum, l) => sum + (l?.quantity || 0), 0);
 		const allowedToAdd = Math.max(0, (availableAtSelected || 0) - currentInCheckout);
 		if (allowedToAdd <= 0) {
@@ -207,7 +216,7 @@ export default async function Page(props: {
 				{ path: "/", maxAge: 10 },
 			);
 			console.error("No stock available to add for variant in selected warehouse", {
-				selectedVariantID,
+				variantId,
 				availableAtSelected,
 				currentInCheckout,
 			});
@@ -229,7 +238,7 @@ export default async function Page(props: {
 		const result = await executeGraphQL(CheckoutAddLineDocument, {
 			variables: {
 				id: checkout.id,
-				productVariantId: decodeURIComponent(selectedVariantID),
+				productVariantId: decodeURIComponent(variantId),
 				quantity,
 			},
 			cache: "no-store",
@@ -243,10 +252,97 @@ export default async function Page(props: {
 			return;
 		}
 
+		// Guardar información del almacén en metadatos de la línea específica del checkout
+		if (
+			warehouseId &&
+			result.checkoutLinesAdd?.checkoutLines &&
+			Array.isArray(result.checkoutLinesAdd.checkoutLines) &&
+			(result.checkoutLinesAdd.checkoutLines as unknown[]).length > 0
+		) {
+			try {
+				const firstLine = (result.checkoutLinesAdd.checkoutLines as unknown[])[0] as { id?: string };
+				const lineId = firstLine?.id;
+
+				// Actualizar metadatos de la línea específica con información del almacén
+				await executeGraphQL(CheckoutLineUpdateMetadataDocument, {
+					variables: {
+						lineId: lineId,
+						input: [
+							{
+								key: "warehouse_id",
+								value: warehouseId,
+							},
+							{
+								key: "warehouse_name",
+								value: warehouseName || "Almacén seleccionado",
+							},
+							{
+								key: "variant_id",
+								value: variantId,
+							},
+						],
+					},
+					cache: "no-store",
+					withAuth: false,
+					useAppToken: false,
+				});
+				console.log("✅ Warehouse info saved to checkout line metadata:", {
+					lineId,
+					warehouseId,
+					warehouseName,
+					variantId,
+				});
+			} catch (error: unknown) {
+				console.error("❌ Error saving warehouse info to checkout line metadata:", error);
+			}
+		}
+
 		revalidatePath("/cart");
 	}
 
 	const isAvailable = variants?.some((variant) => variant.quantityAvailable) ?? false;
+
+	// Warehouse logic moved outside of JSX
+	const allStocks = selectedVariant?.stocks || product.variants?.flatMap((v) => v.stocks || []) || [];
+	const uniqueWarehouses = Array.from(
+		new Map(allStocks.map((s) => [s.warehouse?.id, s.warehouse])).values(),
+	).filter(Boolean) as { id: string; name: string }[];
+
+	let filtered = uniqueWarehouses;
+	let effectiveSelectedId = preselectedWarehouseId || uniqueWarehouses[0]?.id;
+
+	if (uniqueWarehouses.length > 0) {
+		if (warehouseMode === "single") {
+			// In single mode, force showing the configured warehouse even if not in stocks
+			const contains = preselectedWarehouseId
+				? uniqueWarehouses.some((w) => w.id === preselectedWarehouseId)
+				: false;
+			if (preselectedWarehouseId && !contains) {
+				// Mostrar siempre el nombre del env/slug si no está en stocks
+				filtered = [
+					{
+						id: preselectedWarehouseId,
+						name:
+							configuredWarehouseName ||
+							(process.env.NEXT_PUBLIC_WAREHOUSE_SLUG
+								? process.env.NEXT_PUBLIC_WAREHOUSE_SLUG.split("-")
+										.map((p) => p.charAt(0).toUpperCase() + p.slice(1))
+										.join(" ")
+								: ""),
+					},
+				];
+			} else if (preselectedWarehouseId) {
+				filtered = uniqueWarehouses.filter((w) => w.id === preselectedWarehouseId);
+			}
+			effectiveSelectedId = preselectedWarehouseId || filtered[0]?.id;
+		} else {
+			// all mode: keep list as-is; select cookie/configured if present
+			const contains = preselectedWarehouseId
+				? uniqueWarehouses.some((w) => w.id === preselectedWarehouseId)
+				: false;
+			effectiveSelectedId = contains ? preselectedWarehouseId! : uniqueWarehouses[0]?.id;
+		}
+	}
 
 	const price = selectedVariant?.pricing?.price?.gross
 		? formatMoney(selectedVariant.pricing.price.gross.amount, selectedVariant.pricing.price.gross.currency)
@@ -328,82 +424,20 @@ export default async function Page(props: {
 							{price}
 						</p>
 						{/* Warehouse selector (por producto) */}
-						{(() => {
-							const allStocks =
-								selectedVariant?.stocks || product.variants?.flatMap((v) => v.stocks || []) || [];
-							const uniqueWarehouses = Array.from(
-								new Map(allStocks.map((s) => [s.warehouse?.id, s.warehouse])).values(),
-							).filter(Boolean) as { id: string; name: string }[];
-							if (!uniqueWarehouses.length) return null;
-
-							let filtered = uniqueWarehouses;
-							let effectiveSelectedId = preselectedWarehouseId || uniqueWarehouses[0]!.id;
-
-							if (warehouseMode === "single") {
-								// In single mode, force showing the configured warehouse even if not in stocks
-								const contains = preselectedWarehouseId
-									? uniqueWarehouses.some((w) => w.id === preselectedWarehouseId)
-									: false;
-								if (preselectedWarehouseId && !contains) {
-									// Mostrar siempre el nombre del env/slug si no está en stocks
-									filtered = [
-										{
-											id: preselectedWarehouseId,
-											name:
-												configuredWarehouseName ||
-												(process.env.NEXT_PUBLIC_WAREHOUSE_SLUG
-													? process.env.NEXT_PUBLIC_WAREHOUSE_SLUG.split("-")
-															.map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-															.join(" ")
-													: ""),
-										},
-									];
-								} else if (preselectedWarehouseId) {
-									filtered = uniqueWarehouses.filter((w) => w.id === preselectedWarehouseId);
-								}
-								effectiveSelectedId = preselectedWarehouseId || filtered[0]!.id;
-							} else {
-								// all mode: keep list as-is; select cookie/configured if present
-								const contains = preselectedWarehouseId
-									? uniqueWarehouses.some((w) => w.id === preselectedWarehouseId)
-									: false;
-								effectiveSelectedId = contains ? preselectedWarehouseId! : uniqueWarehouses[0]!.id;
-							}
-
-							console.log(
-								"[Product/Page] WarehouseSelect",
-								JSON.stringify(
-									{
-										env: {
-											mode: process.env.NEXT_PUBLIC_WAREHOUSE_MODE,
-											id: process.env.NEXT_PUBLIC_WAREHOUSE_ID,
-											slug: process.env.NEXT_PUBLIC_WAREHOUSE_SLUG,
-										},
-										cookieSelected: preselectedWarehouseId,
-										warehouseMode,
-										uniqueWarehouses: uniqueWarehouses.map((w) => ({ id: w.id, name: w.name })),
-										filtered: filtered.map((w) => ({ id: w.id, name: w.name })),
-										effectiveSelectedId,
-									},
-									null,
-									2,
-								),
-							);
-
-							return (
-								<WarehousePicker
-									warehouses={filtered}
-									selectedId={effectiveSelectedId}
-									action={setWarehouse}
-								/>
-							);
-						})()}
+						{uniqueWarehouses.length > 0 && (
+							<WarehousePicker warehouses={filtered} selectedId={effectiveSelectedId} action={setWarehouse} />
+						)}
 
 						<QuantityPicker
 							value={1}
 							available={availableAtSelected}
 							action={addItem}
 							channel={params.channel}
+							variantId={selectedVariantID}
+							warehouseId={effectiveSelectedId}
+							warehouseName={
+								filtered.find((w) => w.id === effectiveSelectedId)?.name || configuredWarehouseName
+							}
 						/>
 
 						{variants && (

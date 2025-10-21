@@ -1,0 +1,17 @@
+mutation CheckoutLineUpdateMetadata($lineId: ID!, $input: [MetadataInput!]!) {
+	updateMetadata(id: $lineId, input: $input) {
+		item {
+			... on CheckoutLine {
+				id
+				metadata {
+					key
+					value
+				}
+			}
+		}
+		errors {
+			message
+			field
+		}
+	}
+}

@@ -1,0 +1,20 @@
+query WarehouseDetails($id: ID!) {
+	warehouse(id: $id) {
+		id
+		name
+		slug
+		clickAndCollectOption
+		address {
+			city
+			streetAddress1
+			streetAddress2
+			postalCode
+			country {
+				code
+				country
+			}
+		}
+		isPrivate
+		email
+	}
+}

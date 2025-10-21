@@ -27,11 +27,15 @@ export const SelectBox = <TFieldName extends string>({
 	return (
 		<label
 			className={clsx(
-				"relative mb-2 flex cursor-pointer flex-row items-center justify-start rounded border border-neutral-400 px-3 py-2",
+				"relative mb-2 flex cursor-pointer flex-row items-center justify-start rounded border border-neutral-400 px-3 py-2 text-sm",
 				"hover:border hover:border-neutral-500",
-				{ "border border-neutral-500": selected, "pointer-events-none hover:border-neutral-400": disabled },
+				{
+					"border border-neutral-500": selected,
+					"pointer-events-none hover:border-neutral-400": disabled,
+				},
 				className,
 			)}
+			style={selected ? { borderLeft: "solid 5px #da0e0e" } : {}}
 		>
 			<input
 				type="radio"

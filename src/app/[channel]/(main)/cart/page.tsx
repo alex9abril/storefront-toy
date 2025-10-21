@@ -18,14 +18,37 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 	if (!checkout || checkout.lines.length < 1) {
 		return (
 			<section className="mx-auto max-w-7xl p-8">
-				<h1 className="mt-8 text-3xl font-bold text-neutral-900">Tu carrito está vacío</h1>
-				<p className="my-12 text-sm text-neutral-500">Aún no has agregado artículos al carrito.</p>
-				<LinkWithChannel
-					href="/products"
-					className="inline-block max-w-full rounded border border-transparent bg-neutral-900 px-6 py-3 text-center font-medium text-neutral-50 hover:bg-neutral-800 aria-disabled:cursor-not-allowed aria-disabled:bg-neutral-500 sm:px-16"
-				>
-					Explorar productos
-				</LinkWithChannel>
+				<div className="flex flex-col items-center justify-center py-16 text-center">
+					{/* Icono de carrito vacío */}
+					<div className="mb-8 flex h-32 w-32 items-center justify-center rounded-full bg-neutral-100">
+						<svg className="h-16 w-16 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={1.5}
+								d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h6M17 18a2 2 0 100 4 2 2 0 000-4zM9 18a2 2 0 100 4 2 2 0 000-4z"
+							/>
+						</svg>
+					</div>
+
+					<h1 className="mb-4 text-3xl font-bold text-neutral-900">Tu carrito está vacío</h1>
+					<p className="mb-8 text-lg text-neutral-500">Aún no has agregado artículos al carrito.</p>
+
+					<LinkWithChannel
+						href="/products"
+						className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+					>
+						<svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth={2}
+								d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+							/>
+						</svg>
+						Explorar productos
+					</LinkWithChannel>
+				</div>
 			</section>
 		);
 	}

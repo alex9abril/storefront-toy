@@ -1,0 +1,24 @@
+query AllWarehouses($first: Int!) {
+	warehouses(first: $first) {
+		edges {
+			node {
+				id
+				name
+				slug
+				clickAndCollectOption
+				address {
+					city
+					streetAddress1
+					streetAddress2
+					postalCode
+					country {
+						code
+						country
+					}
+				}
+				isPrivate
+				email
+			}
+		}
+	}
+}

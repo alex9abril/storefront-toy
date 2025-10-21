@@ -187,7 +187,7 @@ export function CheckoutForm() {
 				aria-disabled={isLoading || !stripe || !elements}
 				id="submit"
 			>
-				<span className="button-text">{isLoading ? <Loader /> : "Pay now"}</span>
+				<span className="button-text">{isLoading ? <Loader /> : "Pagar ahora"}</span>
 			</button>
 		</form>
 	);

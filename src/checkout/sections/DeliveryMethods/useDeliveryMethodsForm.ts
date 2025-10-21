@@ -14,7 +14,7 @@ interface DeliveryMethodsFormData {
 
 export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData> => {
 	const { checkout } = useCheckout();
-	const { shippingMethods, shippingAddress, deliveryMethod } = checkout;
+	const { shippingMethods, shippingAddress, deliveryMethod, availableCollectionPoints } = checkout;
 	const [, updateDeliveryMethod] = useCheckoutDeliveryMethodUpdateMutation();
 	const { setCheckoutUpdateState } = useCheckoutUpdateStateChange("checkoutDeliveryMethodUpdate");
 
@@ -23,6 +23,11 @@ export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData>
 	);
 
 	const getAutoSetMethod = useCallback(() => {
+		// Si hay almacenes disponibles, preferir el primero (recoger en tienda)
+		if (availableCollectionPoints?.length) {
+			return availableCollectionPoints[0];
+		}
+
 		if (!shippingMethods.length) {
 			return;
 		}
@@ -34,7 +39,7 @@ export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData>
 		);
 
 		return cheapestMethod;
-	}, [shippingMethods]);
+	}, [shippingMethods, availableCollectionPoints]);
 
 	const defaultFormData: DeliveryMethodsFormData = {
 		selectedMethodId: deliveryMethod?.id || getAutoSetMethod()?.id,
@@ -82,7 +87,8 @@ export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData>
 	useEffect(() => {
 		const hasShippingCountryChanged = shippingAddress?.country?.code !== previousShippingCountry.current;
 
-		const hasValidMethodSelected = selectedMethodId && shippingMethods.some(getById(selectedMethodId));
+		const allMethods = [...shippingMethods, ...(availableCollectionPoints || [])];
+		const hasValidMethodSelected = selectedMethodId && allMethods.some(getById(selectedMethodId));
 
 		if (hasValidMethodSelected) {
 			return;
@@ -96,6 +102,7 @@ export const useDeliveryMethodsForm = (): UseFormReturn<DeliveryMethodsFormData>
 	}, [
 		shippingAddress,
 		shippingMethods,
+		availableCollectionPoints,
 		getAutoSetMethod,
 		selectedMethodId,
 		setFieldValue,

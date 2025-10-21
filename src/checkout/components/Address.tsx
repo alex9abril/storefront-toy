@@ -13,12 +13,22 @@ export const Address: React.FC<PropsWithChildren<AddressProps>> = ({ address, ch
 
 	return (
 		<div className="pointer-events-none flex flex-col">
-			<p {...textProps} className="font-semibold">
+			<p
+				{...textProps}
+				className="font-normal"
+				style={{ color: "rgb(202, 24, 24)", fontSize: "14px", fontWeight: 400 }}
+			>
 				{name}
 			</p>
-			<p {...textProps}>{phone}</p>
-			<p {...textProps}>{compact([streetAddress1, city, postalCode]).join(", ")}</p>
-			<p {...textProps}>{compact([countryArea, country.country]).join(", ")}</p>
+			<p {...textProps} style={{ color: "#757575", fontSize: "12px", fontWeight: 300 }}>
+				{phone}
+			</p>
+			<p {...textProps} style={{ color: "#757575", fontSize: "12px", fontWeight: 300 }}>
+				{compact([streetAddress1, city, postalCode]).join(", ")}
+			</p>
+			<p {...textProps} style={{ color: "#757575", fontSize: "12px", fontWeight: 300 }}>
+				{compact([countryArea, country.country]).join(", ")}
+			</p>
 			{children}
 		</div>
 	);

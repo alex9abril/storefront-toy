@@ -16,6 +16,8 @@ export const PaymentMethods = () => {
 		[availablePaymentGateways],
 	);
 
+	// Debug logs removed - issue resolved
+
 	// delivery methods change total price so we want to wait until the change is done
 	if (changingBillingCountry || fetching || checkoutDeliveryMethodUpdate === "loading") {
 		return <PaymentSectionSkeleton />;

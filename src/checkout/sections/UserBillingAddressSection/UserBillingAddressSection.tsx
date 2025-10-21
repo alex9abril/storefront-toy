@@ -63,7 +63,7 @@ export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps>
 					<FormProvider form={billingSameAsShippingForm}>
 						<Checkbox
 							name="billingSameAsShipping"
-							label="Use shipping address as billing address"
+							label="Usar dirección de envío como dirección de facturación"
 							data-testid={"useShippingAsBillingCheckbox"}
 						/>
 					</FormProvider>
@@ -90,7 +90,7 @@ export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps>
 
 								{displayAddressEdit && (
 									<AddressEditForm
-										title="Billing address"
+										title="Dirección de facturación"
 										onClose={() => setDisplayAddressEdit()}
 										address={form.values.addressList.find(getById(editedAddressId)) as AddressFragment}
 										onUpdate={onAddressUpdateSuccess}
@@ -102,7 +102,7 @@ export const UserBillingAddressSection: React.FC<UserBillingAddressSectionProps>
 									<AddressList
 										onEditChange={setDisplayAddressEdit}
 										onAddAddressClick={() => setDisplayAddressCreate(true)}
-										title="Billing address"
+										title="Dirección de facturación"
 										form={form}
 									/>
 								)}

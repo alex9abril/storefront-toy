@@ -14,6 +14,8 @@ export const usePaymentGatewaysInitialize = () => {
 		checkout: { id: checkoutId, availablePaymentGateways },
 	} = useCheckout();
 
+	// Debug logs removed - issue resolved
+
 	const billingCountry = billingAddress?.country.code as MightNotExist<CountryCode>;
 
 	const [gatewayConfigs, setGatewayConfigs] = useState<ParsedPaymentGateways>([]);
@@ -54,7 +56,7 @@ export const usePaymentGatewaysInitialize = () => {
 
 	useEffect(() => {
 		void onSubmit();
-	}, []);
+	}, [onSubmit]);
 
 	useEffect(() => {
 		if (billingCountry !== previousBillingCountry.current) {

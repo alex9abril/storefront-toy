@@ -30,7 +30,7 @@ export const GuestBillingAddressSection = () => {
 					<FormProvider form={billingSameAsShippingForm}>
 						<Checkbox
 							name="billingSameAsShipping"
-							label="Use shipping address as billing address"
+							label="Usar dirección de envío como dirección de facturación"
 							data-testid="useShippingAsBillingCheckbox"
 						/>
 					</FormProvider>
@@ -40,7 +40,7 @@ export const GuestBillingAddressSection = () => {
 				<div className="mb-4">
 					<FormProvider form={form}>
 						<AddressForm
-							title="Billing address"
+							title="Dirección de facturación"
 							fieldProps={{
 								onChange: handleChange,
 								onBlur: handleBlur,

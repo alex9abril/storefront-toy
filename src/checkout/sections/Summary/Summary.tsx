@@ -96,8 +96,12 @@ export const Summary: FC<SummaryProps> = ({
 				<Divider className="my-4" />
 				<div className="flex flex-row items-baseline justify-between pb-4">
 					<div className="flex flex-row items-baseline">
-						<p className="font-bold">Total</p>
-						<p color="secondary" className="ml-2">
+						<p className="font-normal">Total</p>
+						<p
+							color="secondary"
+							className="ml-2"
+							style={{ color: "#757575", fontSize: "14px", fontWeight: 300 }}
+						>
 							incluye {getFormattedMoney(totalPrice?.tax)} impuestos
 						</p>
 					</div>
