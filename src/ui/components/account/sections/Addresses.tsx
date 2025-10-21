@@ -42,8 +42,19 @@ const _mockAddresses = [
 
 export function Addresses() {
 	const [showAddForm, setShowAddForm] = useState(false);
-	const [_editingAddress, setEditingAddress] = useState<string | null>(null);
+	const [editingAddress, setEditingAddress] = useState<string | null>(null);
 	const [newAddress, setNewAddress] = useState({
+		firstName: "",
+		lastName: "",
+		companyName: "",
+		streetAddress1: "",
+		streetAddress2: "",
+		city: "",
+		postalCode: "",
+		country: "MX",
+		phone: "",
+	});
+	const [editAddress, setEditAddress] = useState({
 		firstName: "",
 		lastName: "",
 		companyName: "",
@@ -105,8 +116,53 @@ export function Addresses() {
 	};
 
 	const handleEditAddress = (id: string) => {
-		setEditingAddress(id);
-		// Aquí implementarías la lógica para editar la dirección
+		const address = addresses.find((addr: any) => addr.id === id);
+		if (address) {
+			setEditAddress({
+				firstName: address.firstName || "",
+				lastName: address.lastName || "",
+				companyName: address.companyName || "",
+				streetAddress1: address.streetAddress1 || "",
+				streetAddress2: address.streetAddress2 || "",
+				city: address.city || "",
+				postalCode: address.postalCode || "",
+				country: address.country?.code || "MX",
+				phone: address.phone || "",
+			});
+			setEditingAddress(id);
+		}
+	};
+
+	const handleSaveEdit = () => {
+		// Aquí implementarías la lógica para guardar la dirección editada
+		console.log("Guardar dirección editada:", editAddress);
+		setEditingAddress(null);
+		setEditAddress({
+			firstName: "",
+			lastName: "",
+			companyName: "",
+			streetAddress1: "",
+			streetAddress2: "",
+			city: "",
+			postalCode: "",
+			country: "MX",
+			phone: "",
+		});
+	};
+
+	const handleCancelEdit = () => {
+		setEditingAddress(null);
+		setEditAddress({
+			firstName: "",
+			lastName: "",
+			companyName: "",
+			streetAddress1: "",
+			streetAddress2: "",
+			city: "",
+			postalCode: "",
+			country: "MX",
+			phone: "",
+		});
 	};
 
 	const handleDeleteAddress = (id: string) => {
@@ -302,16 +358,147 @@ export function Addresses() {
 				</div>
 			)}
 
+			{/* Formulario para editar dirección */}
+			{editingAddress && (
+				<div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-6">
+					<h3 className="mb-4 text-lg font-semibold text-blue-900">Editar Dirección</h3>
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div>
+							<label className="block text-sm font-medium text-gray-700">Nombre</label>
+							<input
+								type="text"
+								value={editAddress.firstName}
+								onChange={(e) => setEditAddress({ ...editAddress, firstName: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Nombre"
+								required
+							/>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700">Apellido</label>
+							<input
+								type="text"
+								value={editAddress.lastName}
+								onChange={(e) => setEditAddress({ ...editAddress, lastName: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Apellido"
+								required
+							/>
+						</div>
+						<div className="md:col-span-2">
+							<label className="block text-sm font-medium text-gray-700">Empresa (Opcional)</label>
+							<input
+								type="text"
+								value={editAddress.companyName}
+								onChange={(e) => setEditAddress({ ...editAddress, companyName: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Nombre de la empresa"
+							/>
+						</div>
+						<div className="md:col-span-2">
+							<label className="block text-sm font-medium text-gray-700">Dirección</label>
+							<input
+								type="text"
+								value={editAddress.streetAddress1}
+								onChange={(e) => setEditAddress({ ...editAddress, streetAddress1: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Calle, número, colonia"
+								required
+							/>
+						</div>
+						<div className="md:col-span-2">
+							<label className="block text-sm font-medium text-gray-700">Dirección 2 (Opcional)</label>
+							<input
+								type="text"
+								value={editAddress.streetAddress2}
+								onChange={(e) => setEditAddress({ ...editAddress, streetAddress2: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Apartamento, suite, etc."
+							/>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700">Ciudad</label>
+							<input
+								type="text"
+								value={editAddress.city}
+								onChange={(e) => setEditAddress({ ...editAddress, city: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Ciudad"
+								required
+							/>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700">Código Postal</label>
+							<input
+								type="text"
+								value={editAddress.postalCode}
+								onChange={(e) => setEditAddress({ ...editAddress, postalCode: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Código Postal"
+								required
+							/>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700">País</label>
+							<select
+								value={editAddress.country}
+								onChange={(e) => setEditAddress({ ...editAddress, country: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								required
+							>
+								<option value="MX">México</option>
+								<option value="US">Estados Unidos</option>
+								<option value="CA">Canadá</option>
+							</select>
+						</div>
+						<div>
+							<label className="block text-sm font-medium text-gray-700">Teléfono</label>
+							<input
+								type="tel"
+								value={editAddress.phone}
+								onChange={(e) => setEditAddress({ ...editAddress, phone: e.target.value })}
+								className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+								placeholder="Teléfono"
+							/>
+						</div>
+					</div>
+					<div className="mt-4 flex gap-3">
+						<button
+							onClick={handleSaveEdit}
+							className="rounded-lg bg-[#EB0A1E] px-4 py-2 text-sm font-medium text-white hover:bg-[#C4081A]"
+						>
+							Guardar Cambios
+						</button>
+						<button
+							onClick={handleCancelEdit}
+							className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+						>
+							Cancelar
+						</button>
+					</div>
+				</div>
+			)}
+
 			{/* Lista de direcciones */}
 			<div className="grid gap-4 md:grid-cols-2">
 				{addresses.map((address: any) => (
-					<div key={address.id} className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+					<div
+						key={address.id}
+						className={`rounded-lg border p-6 shadow-sm ${
+							editingAddress === address.id ? "border-blue-300 bg-blue-50" : "border-gray-200 bg-white"
+						}`}
+					>
 						<div className="flex items-start justify-between">
 							<div className="flex-1">
 								<div className="flex items-center gap-2">
 									<h3 className="text-lg font-semibold text-gray-900">
 										{address.firstName} {address.lastName}
 									</h3>
+									{editingAddress === address.id && (
+										<span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-medium text-white">
+											Editando
+										</span>
+									)}
 									{(address.isDefaultShippingAddress || address.isDefaultBillingAddress) && (
 										<span className="rounded-full bg-[#EB0A1E] px-2 py-1 text-xs font-medium text-white">
 											Predeterminada
@@ -342,12 +529,29 @@ export function Addresses() {
 								</div>
 							</div>
 							<div className="ml-4 flex flex-col gap-2">
-								<button
-									onClick={() => handleEditAddress(address.id)}
-									className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
-								>
-									Editar
-								</button>
+								{editingAddress === address.id ? (
+									<div className="flex gap-2">
+										<button
+											onClick={handleSaveEdit}
+											className="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700"
+										>
+											Guardar
+										</button>
+										<button
+											onClick={handleCancelEdit}
+											className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+										>
+											Cancelar
+										</button>
+									</div>
+								) : (
+									<button
+										onClick={() => handleEditAddress(address.id)}
+										className="rounded-lg border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+									>
+										Editar
+									</button>
+								)}
 								{!address.isDefaultShippingAddress && !address.isDefaultBillingAddress && (
 									<button
 										onClick={() => handleSetDefault(address.id)}
