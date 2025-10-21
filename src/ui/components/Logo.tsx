@@ -26,7 +26,7 @@ export const Logo = () => {
 	const content = (
 		<div className="mt-2 flex w-[200px] items-center gap-2 font-bold leading-none">
 			<Image src="/toyota.png" alt="Toyota" width={45} height={45} />
-			<span className="leading-none">{companyName}</span>
+			<span className="leading-none text-gray-800">{companyName}</span>
 		</div>
 	);
 

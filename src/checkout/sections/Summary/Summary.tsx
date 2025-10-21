@@ -1,5 +1,6 @@
 import { type FC } from "react";
 import clsx from "clsx";
+// import Link from "next/link"; // Removed to avoid Next.js dependency in checkout
 import { SummaryItem, type SummaryLine } from "./SummaryItem";
 import { PromoCodeAdd } from "./PromoCodeAdd";
 import { SummaryMoneyRow } from "./SummaryMoneyRow";
@@ -107,6 +108,16 @@ export const Summary: FC<SummaryProps> = ({
 					</div>
 					<Money ariaLabel="total price" money={totalPrice?.gross} data-testid="totalOrderPrice" />
 				</div>
+				{!editable && (
+					<div className="mt-4 border-t border-gray-200 pt-4">
+						<a
+							href={`/${process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "toyota-web"}`}
+							className="block w-full rounded-md bg-[#EB0A1E] px-6 py-3 text-center font-medium text-white transition-colors hover:bg-[#D0091A]"
+						>
+							Continuar comprando
+						</a>
+					</div>
+				)}
 			</div>
 		</div>
 	);
