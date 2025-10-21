@@ -7,9 +7,8 @@ import { SectionsShowcase } from "@/ui/components/SectionsShowcase";
 import { VehicleSelectorBanner } from "@/ui/components/VehicleSelectorBanner";
 
 export const metadata = {
-	title: "ACME Storefront, powered by Saleor & Next.js",
-	description:
-		"Storefront Next.js Example for building performant e-commerce experiences with Saleor - the composable, headless commerce platform for global brands.",
+	title: "Toyota Refacciones",
+	description: "Refacciones originales Toyota para todos los modelos y años.",
 };
 
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
