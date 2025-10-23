@@ -84,8 +84,13 @@ pipeline {
           steps {
             sh '''
               set -e
-              # Detén el servicio antes de reemplazar (sin sudo)
+              # Detén el servicio antes de reemplazar (más agresivo)
               pkill -f "agora-dev" || true
+              pkill -f "pnpm.*start" || true
+              pkill -f "next.*start" || true
+              
+              # Esperar a que se libere el puerto
+              sleep 3
 
               # Sincroniza el código generado y build al destino
               mkdir -p "''' + env.APP_DIR + '''"
@@ -104,8 +109,17 @@ pipeline {
         stage('Restart service') {
           steps {
             sh '''
-              # Inicia la aplicación en background con puerto 5000
+              # Verificar que el puerto esté libre
               cd "''' + env.APP_DIR + '''"
+              if netstat -tlnp | grep :5010 >/dev/null; then
+                echo "⚠️ Puerto 5010 ocupado, liberando..."
+                pkill -f "agora-dev" || true
+                pkill -f "pnpm.*start" || true
+                pkill -f "next.*start" || true
+                sleep 5
+              fi
+              
+              # Inicia la aplicación en background con puerto 5010
               PORT=5010 nohup npx pnpm@latest start > agora-dev.log 2>&1 &
               echo $! > agora-dev.pid
               sleep 5
