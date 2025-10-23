@@ -14,7 +14,6 @@ import {
 	CheckoutAddLineDocument,
 	CheckoutLineUpdateMetadataDocument,
 	ProductDetailsDocument,
-	ProductListDocument,
 	WarehousesDocument,
 } from "@/gql/graphql";
 import * as Checkout from "@/lib/checkout";
@@ -73,16 +72,18 @@ export async function generateMetadata(
 	};
 }
 
-export async function generateStaticParams({ params }: { params: { channel: string } }) {
-	const channel = params?.channel || process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "default-channel";
-	const { products } = await executeGraphQL(ProductListDocument, {
-		revalidate: 60,
-		variables: { first: 20, channel },
-		withAuth: false,
-	});
-
-	const paths = products?.edges.map(({ node: { slug } }) => ({ slug })) || [];
-	return paths;
+export function generateStaticParams() {
+	// Usar productos hardcodeados para evitar consultas GraphQL durante el build
+	// Los productos se cargarán dinámicamente en el cliente
+	return [
+		{ slug: "balatas-toyota-04465-02410" },
+		{
+			slug: "bomba-de-agua-sin-base-propela-de-metal-con-carcasa-polea-de-guia-3-ranuras-tubo-cortoa-lado-del-codo",
+		},
+		{ slug: "bulbo-de-aceite-terminales" },
+		{ slug: "filtro-de-aceite-toyota-04152-yzzd2" },
+		{ slug: "pastillas-de-freno-toyota-04465-02410" },
+	];
 }
 
 const parser = edjsHTML();
