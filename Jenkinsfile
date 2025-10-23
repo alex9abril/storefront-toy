@@ -106,7 +106,7 @@ pipeline {
             sh '''
               # Inicia la aplicación en background con puerto 5000
               cd "''' + env.APP_DIR + '''"
-              PORT=5000 nohup npx pnpm@latest start > agora-dev.log 2>&1 &
+              PORT=5010 nohup npx pnpm@latest start > agora-dev.log 2>&1 &
               echo $! > agora-dev.pid
               sleep 5
               
@@ -127,7 +127,7 @@ pipeline {
           steps {
             sh '''
               for i in $(seq 1 20); do
-                if curl -fsS http://127.0.0.1:5000/ >/dev/null; then
+                if curl -fsS http://127.0.0.1:5010/ >/dev/null; then
                   echo "✅ App respondió correctamente"
                   exit 0
                 fi
@@ -143,7 +143,7 @@ pipeline {
 
   post {
     success {
-      echo "✅ Desplegado: http://54.83.250.117:5000"
+      echo "✅ Desplegado: http://54.83.250.117:5010"
     }
     failure {
       echo "❌ Falló el deploy. Revisa la consola."
