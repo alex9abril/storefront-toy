@@ -9,26 +9,11 @@ interface BlogArticlePageProps {
 	params: Promise<{ channel: string; slug: string }>;
 }
 
-export async function generateMetadata({ params }: BlogArticlePageProps): Promise<Metadata> {
-	const { slug } = await params;
-	const article = getArticleBySlug(slug);
-
-	if (!article) {
-		return {
-			title: "Artículo no encontrado",
-			description: "El artículo solicitado no existe.",
-		};
-	}
-
+export function generateMetadata(): Metadata {
+	// Metadata estática para evitar consultas durante el build
 	return {
-		title: article.seo?.metaTitle || article.title,
-		description: article.seo?.metaDescription || article.excerpt,
-		keywords: article.seo?.keywords,
-		openGraph: {
-			title: article.title,
-			description: article.excerpt,
-			images: article.featuredImage ? [article.featuredImage] : [],
-		},
+		title: "Artículo del Blog",
+		description: "Lee nuestros artículos sobre refacciones Toyota y consejos de mantenimiento.",
 	};
 }
 
