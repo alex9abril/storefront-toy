@@ -84,13 +84,17 @@ export async function generateStaticParams({ params }: { params?: { channel?: st
 const parser = edjsHTML();
 
 export default async function Page(props: {
-	params: Promise<{ slug: string; channel: string }>;
-	searchParams: Promise<{ variant?: string }>;
+	params?: Promise<{ slug: string; channel: string }>;
+	searchParams?: Promise<{ variant?: string }>;
 }) {
+	if (!props.params) {
+		notFound();
+	}
+
 	const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
 	console.log("[Product/Page] Payload", {
 		operation: "ProductDetails",
-		variables: { slug: decodeURIComponent((await props.params).slug), channel: (await props.params).channel },
+		variables: { slug: decodeURIComponent(params.slug), channel: params.channel },
 	});
 	const { product } = await executeGraphQL(ProductDetailsDocument, {
 		variables: {
