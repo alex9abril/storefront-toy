@@ -1,27 +1,5 @@
-import { executeGraphQL } from "@/lib/graphql";
-import { AllWarehousesDocument } from "@/gql/graphql";
-
-export default async function DebugWarehousesPage() {
-	console.log("🔍 Debug - Checking warehouse configuration...");
-
-	const { warehouses } = await executeGraphQL(AllWarehousesDocument, {
-		variables: { first: 100 },
-		withAuth: false,
-	});
-
-	const warehouseList = warehouses?.edges.map((edge) => edge.node) || [];
-
-	console.log("🔍 Debug - Warehouse configuration:", {
-		totalWarehouses: warehouseList.length,
-		warehouses: warehouseList.map((w) => ({
-			id: w.id,
-			name: w.name,
-			clickAndCollectOption: w.clickAndCollectOption,
-			isPrivate: w.isPrivate,
-			address: w.address,
-		})),
-	});
-
+export default function DebugWarehousesPage() {
+	// Página de debug estática - no hace consultas GraphQL durante el build
 	return (
 		<div className="min-h-screen bg-white p-8">
 			<div className="mx-auto max-w-4xl">
@@ -38,67 +16,14 @@ export default async function DebugWarehousesPage() {
 				</div>
 
 				<div className="space-y-4">
-					<h2 className="text-xl font-semibold">Almacenes Configurados ({warehouseList.length})</h2>
+					<h2 className="text-xl font-semibold">Información de Almacenes</h2>
 
-					{warehouseList.length === 0 ? (
-						<p className="text-gray-500">No se encontraron almacenes.</p>
-					) : (
-						<div className="space-y-3">
-							{warehouseList.map((warehouse) => {
-								const clickAndCollectOption = warehouse.clickAndCollectOption as string;
-								const isDisabled = clickAndCollectOption === "DISABLED";
-								const isLocal = clickAndCollectOption === "LOCAL";
-
-								return (
-									<div
-										key={warehouse.id}
-										className={`rounded-lg border p-4 ${
-											isDisabled ? "border-red-200 bg-red-50" : "border-green-200 bg-green-50"
-										}`}
-									>
-										<div className="flex items-center justify-between">
-											<div>
-												<h3 className="font-semibold">{warehouse.name}</h3>
-												<p className="text-sm text-gray-600">
-													{warehouse.address.city}, {warehouse.address.streetAddress1}
-												</p>
-											</div>
-											<div className="text-right">
-												<span
-													className={`inline-block rounded px-2 py-1 text-xs font-medium ${
-														isDisabled
-															? "bg-red-100 text-red-800"
-															: isLocal
-																? "bg-blue-100 text-blue-800"
-																: "bg-green-100 text-green-800"
-													}`}
-												>
-													{warehouse.clickAndCollectOption}
-												</span>
-												{warehouse.isPrivate && (
-													<span className="ml-2 inline-block rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
-														PRIVADO
-													</span>
-												)}
-											</div>
-										</div>
-
-										{isDisabled && (
-											<div className="mt-2 text-sm text-red-600">
-												❌ Este almacén no está configurado para recogida en tienda
-											</div>
-										)}
-
-										{!isDisabled && (
-											<div className="mt-2 text-sm text-green-600">
-												✅ Este almacén está configurado para recogida en tienda
-											</div>
-										)}
-									</div>
-								);
-							})}
-						</div>
-					)}
+					<div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+						<p className="text-blue-700">
+							Esta página de debug muestra información sobre la configuración de almacenes. Para ver los
+							almacenes reales, visita la página en el navegador después del despliegue.
+						</p>
+					</div>
 				</div>
 
 				<div className="mt-8 rounded-lg bg-blue-50 p-4">

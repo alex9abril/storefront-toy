@@ -1,8 +1,7 @@
 import { Title } from "@/checkout/components/Title";
 
-export default async function DebugCheckoutMetadataPage() {
-	// Obtener el checkout actual (necesitarías pasar el ID del checkout)
-	// Por ahora, vamos a mostrar un mensaje de instrucciones
+export default function DebugCheckoutMetadataPage() {
+	// Página de debug estática - no hace consultas GraphQL durante el build
 	return (
 		<div className="container mx-auto p-8">
 			<Title className="mb-4">Diagnóstico de Metadatos del Checkout</Title>
