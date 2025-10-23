@@ -59,7 +59,13 @@ pipeline {
         sh '''
           # Exporta variables para embebido en build (NEXT_PUBLIC_*)
           set -a
-          . ''' + env.ENV_FILE + '''
+          if [ -f ''' + env.ENV_FILE + ''' ]; then
+            . ''' + env.ENV_FILE + '''
+            echo "✅ Variables cargadas desde ''' + env.ENV_FILE + '''"
+          else
+            echo "⚠️  Archivo ''' + env.ENV_FILE + ''' no encontrado, usando .env local"
+            . .env
+          fi
           set +a
 
           # Asegura output standalone para despliegue limpio
