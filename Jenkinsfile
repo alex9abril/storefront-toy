@@ -8,7 +8,7 @@ pipeline {
 
   environment {
     APP_DIR  = '/var/www/agora/dev'
-    SERVICE  = 'agora-dev'`
+    SERVICE  = 'agora-dev'
     ENV_FILE = '/etc/market/agora.env'
   }
 
