@@ -85,7 +85,7 @@ pipeline {
             sh '''
               set -e
               # Detén el servicio antes de reemplazar (sin sudo)
-              systemctl --user stop ''' + env.SERVICE + ''' || true
+              pkill -f "agora-dev" || true
 
               # Sincroniza el código generado y build al destino
               mkdir -p "''' + env.APP_DIR + '''"
@@ -94,9 +94,9 @@ pipeline {
                 --exclude='node_modules' \
                 ./ "''' + env.APP_DIR + '''/"
 
-              # Instala deps de producción en runtime
+              # Instala deps de producción en runtime (sin husky)
               cd "''' + env.APP_DIR + '''"
-              npx pnpm@latest install --frozen-lockfile --prod
+              npx pnpm@latest install --frozen-lockfile --prod --ignore-scripts
             '''
           }
         }
@@ -104,35 +104,44 @@ pipeline {
         stage('Restart service') {
           steps {
             sh '''
-              systemctl --user daemon-reload
-              systemctl --user restart ''' + env.SERVICE + '''
-              sleep 3
-              systemctl --user status ''' + env.SERVICE + ''' --no-pager || true
+              # Inicia la aplicación en background
+              cd "''' + env.APP_DIR + '''"
+              nohup npx pnpm@latest start > /var/log/agora-dev.log 2>&1 &
+              echo $! > /var/run/agora-dev.pid
+              sleep 5
+              
+              # Verifica que esté corriendo
+              if [ -f /var/run/agora-dev.pid ]; then
+                echo "✅ Aplicación iniciada con PID: $(cat /var/run/agora-dev.pid)"
+              else
+                echo "❌ Error al iniciar la aplicación"
+                exit 1
+              fi
             '''
           }
         }
 
-    stage('Health check') {
-      steps {
-        sh '''
-          for i in $(seq 1 20); do
-            if curl -fsS http://127.0.0.1:3000/ >/dev/null; then
-              echo "OK"
-              exit 0
-            fi
-            echo "Waiting app..."
-            sleep 2
-          done
-          echo "App no respondió"
-          exit 1
-        '''
-      }
-    }
+        stage('Health check') {
+          steps {
+            sh '''
+              for i in $(seq 1 20); do
+                if curl -fsS http://127.0.0.1:5000/ >/dev/null; then
+                  echo "✅ App respondió correctamente"
+                  exit 0
+                fi
+                echo "⏳ Esperando app... (intento $i/20)"
+                sleep 2
+              done
+              echo "❌ App no respondió después de 40 segundos"
+              exit 1
+            '''
+          }
+        }
   }
 
   post {
     success {
-      echo "✅ Desplegado: http://54.83.250.117:3000"
+      echo "✅ Desplegado: http://54.83.250.117:5000"
     }
     failure {
       echo "❌ Falló el deploy. Revisa la consola."
