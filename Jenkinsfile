@@ -33,6 +33,21 @@ pipeline {
       }
     }
 
+    stage('Setup environment') {
+      steps {
+        sh '''
+          # Crear archivo .env desde .env.example
+          if [ -f .env.example ]; then
+            cp .env.example .env
+            echo "✅ Archivo .env creado desde .env.example"
+          else
+            echo "⚠️  Archivo .env.example no encontrado"
+            touch .env
+          fi
+        '''
+      }
+    }
+
     stage('GraphQL codegen') {
       steps {
         sh 'npx pnpm@latest generate'
