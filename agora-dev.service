@@ -1,0 +1,17 @@
+[Unit]
+Description=Agora Storefront Dev
+After=network.target
+
+[Service]
+Type=simple
+User=jenkins
+Group=jenkins
+WorkingDirectory=/var/www/agora/dev
+ExecStart=/usr/bin/npx pnpm@latest start
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+Environment=PORT=5000
+
+[Install]
+WantedBy=default.target

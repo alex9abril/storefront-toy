@@ -80,40 +80,37 @@ pipeline {
       }
     }
 
-    stage('Deploy (sync)') {
-      steps {
-        sh '''
-          set -e
-          # Detén el servicio antes de reemplazar
-          sudo systemctl stop ''' + env.SERVICE + ''' || true
+        stage('Deploy (sync)') {
+          steps {
+            sh '''
+              set -e
+              # Detén el servicio antes de reemplazar (sin sudo)
+              systemctl --user stop ''' + env.SERVICE + ''' || true
 
-          # Sincroniza el código generado y build al destino
-          sudo mkdir -p "''' + env.APP_DIR + '''"
-          rsync -a --delete \
-            --exclude='.git' \
-            --exclude='node_modules' \
-            ./ "''' + env.APP_DIR + '''/"
+              # Sincroniza el código generado y build al destino
+              mkdir -p "''' + env.APP_DIR + '''"
+              rsync -a --delete \
+                --exclude='.git' \
+                --exclude='node_modules' \
+                ./ "''' + env.APP_DIR + '''/"
 
-          # Instala deps de producción en runtime
-          cd "''' + env.APP_DIR + '''"
-          npx pnpm@latest install --frozen-lockfile --prod
+              # Instala deps de producción en runtime
+              cd "''' + env.APP_DIR + '''"
+              npx pnpm@latest install --frozen-lockfile --prod
+            '''
+          }
+        }
 
-          # Propietarios correctos
-          sudo chown -R jenkins:jenkins "''' + env.APP_DIR + '''"
-        '''
-      }
-    }
-
-    stage('Restart service') {
-      steps {
-        sh '''
-          sudo systemctl daemon-reload
-          sudo systemctl restart ''' + env.SERVICE + '''
-          sleep 3
-          sudo systemctl status ''' + env.SERVICE + ''' --no-pager || true
-        '''
-      }
-    }
+        stage('Restart service') {
+          steps {
+            sh '''
+              systemctl --user daemon-reload
+              systemctl --user restart ''' + env.SERVICE + '''
+              sleep 3
+              systemctl --user status ''' + env.SERVICE + ''' --no-pager || true
+            '''
+          }
+        }
 
     stage('Health check') {
       steps {
