@@ -63,21 +63,13 @@ pipeline {
             . ''' + env.ENV_FILE + '''
             echo "✅ Variables cargadas desde ''' + env.ENV_FILE + '''"
           else
-            echo "⚠️  Archivo ''' + env.ENV_FILE + ''' no encontrado, recreando .env desde .env.example"
-            if [ -f .env.example ]; then
-              cp .env.example .env
-              echo "✅ Archivo .env recreado desde .env.example"
-              # Verificar que el archivo se creó correctamente
-              ls -la .env
-              echo "Contenido del archivo .env:"
-              cat .env
-            else
-              echo "❌ Archivo .env.example no encontrado"
-              exit 1
-            fi
-            # Cargar variables desde .env usando source
-            source .env
-            echo "✅ Variables cargadas desde .env"
+            echo "❌ Archivo ''' + env.ENV_FILE + ''' no encontrado"
+            echo "Por favor crea el archivo con:"
+            echo "sudo mkdir -p /etc/market"
+            echo "sudo touch /etc/market/agora.env"
+            echo "sudo chown jenkins:jenkins /etc/market/agora.env"
+            echo "Luego agrega las variables necesarias al archivo"
+            exit 1
           fi
           set +a
 
