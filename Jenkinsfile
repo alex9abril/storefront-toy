@@ -63,7 +63,14 @@ pipeline {
             . ''' + env.ENV_FILE + '''
             echo "✅ Variables cargadas desde ''' + env.ENV_FILE + '''"
           else
-            echo "⚠️  Archivo ''' + env.ENV_FILE + ''' no encontrado, usando .env local"
+            echo "⚠️  Archivo ''' + env.ENV_FILE + ''' no encontrado, recreando .env desde .env.example"
+            if [ -f .env.example ]; then
+              cp .env.example .env
+              echo "✅ Archivo .env recreado desde .env.example"
+            else
+              echo "❌ Archivo .env.example no encontrado"
+              exit 1
+            fi
             . .env
           fi
           set +a
