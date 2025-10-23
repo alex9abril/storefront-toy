@@ -17,10 +17,9 @@ pipeline {
     stage('Node & pnpm') {
       steps {
         sh '''
-          # Instalar pnpm globalmente sin corepack
+          # Usar npx para ejecutar pnpm sin instalación global
           node -v || true
-          npm install -g pnpm@latest
-          pnpm -v
+          npx pnpm@latest --version
         '''
       }
     }
@@ -29,14 +28,14 @@ pipeline {
       steps {
         sh '''
           # Instala con lockfile (pnpm-lock.yaml)
-          pnpm install --frozen-lockfile
+          npx pnpm@latest install --frozen-lockfile
         '''
       }
     }
 
     stage('GraphQL codegen') {
       steps {
-        sh 'pnpm generate'
+        sh 'npx pnpm@latest generate'
       }
     }
 
@@ -50,7 +49,7 @@ pipeline {
 
           # Asegura output standalone para despliegue limpio
           # (debe estar en next.config.js: output: "standalone")
-          pnpm build
+          npx pnpm@latest build
         '''
       }
     }
@@ -71,7 +70,7 @@ pipeline {
 
           # Instala deps de producción en runtime
           cd "''' + env.APP_DIR + '''"
-          pnpm install --frozen-lockfile --prod
+          npx pnpm@latest install --frozen-lockfile --prod
 
           # Propietarios correctos
           sudo chown -R jenkins:jenkins "''' + env.APP_DIR + '''"
