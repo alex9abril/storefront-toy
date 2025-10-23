@@ -67,11 +67,17 @@ pipeline {
             if [ -f .env.example ]; then
               cp .env.example .env
               echo "✅ Archivo .env recreado desde .env.example"
+              # Verificar que el archivo se creó correctamente
+              ls -la .env
+              echo "Contenido del archivo .env:"
+              cat .env
             else
               echo "❌ Archivo .env.example no encontrado"
               exit 1
             fi
-            . .env
+            # Cargar variables desde .env usando source
+            source .env
+            echo "✅ Variables cargadas desde .env"
           fi
           set +a
 
