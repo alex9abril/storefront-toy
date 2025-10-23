@@ -2,7 +2,6 @@ pipeline {
   agent any
   options {
     timestamps()
-    ansiColor('xterm')
     buildDiscarder(logRotator(numToKeepStr: '15'))
     timeout(time: 25, unit: 'MINUTES')
   }
