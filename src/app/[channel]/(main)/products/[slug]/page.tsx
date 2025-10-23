@@ -25,11 +25,15 @@ import { QuantityPicker } from "@/ui/components/QuantityPicker";
 
 export async function generateMetadata(
 	props: {
-		params: Promise<{ slug: string; channel: string }>;
-		searchParams: Promise<{ variant?: string }>;
+		params?: Promise<{ slug: string; channel: string }>;
+		searchParams?: Promise<{ variant?: string }>;
 	},
 	parent: ResolvingMetadata,
 ): Promise<Metadata> {
+	if (!props.params) {
+		return {};
+	}
+
 	const [searchParams, params] = await Promise.all([props.searchParams, props.params]);
 
 	const { product } = await executeGraphQL(ProductDetailsDocument, {
@@ -69,7 +73,7 @@ export async function generateMetadata(
 	};
 }
 
-export async function generateStaticParams({ params }: { params?: { channel?: string } }) {
+export async function generateStaticParams({ params }: { params: { channel: string } }) {
 	const channel = params?.channel || process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "default-channel";
 	const { products } = await executeGraphQL(ProductListDocument, {
 		revalidate: 60,
