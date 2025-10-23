@@ -106,13 +106,13 @@ pipeline {
             sh '''
               # Inicia la aplicación en background
               cd "''' + env.APP_DIR + '''"
-              nohup npx pnpm@latest start > /var/log/agora-dev.log 2>&1 &
-              echo $! > /var/run/agora-dev.pid
+              nohup npx pnpm@latest start > agora-dev.log 2>&1 &
+              echo $! > agora-dev.pid
               sleep 5
               
               # Verifica que esté corriendo
-              if [ -f /var/run/agora-dev.pid ]; then
-                echo "✅ Aplicación iniciada con PID: $(cat /var/run/agora-dev.pid)"
+              if [ -f agora-dev.pid ]; then
+                echo "✅ Aplicación iniciada con PID: $(cat agora-dev.pid)"
               else
                 echo "❌ Error al iniciar la aplicación"
                 exit 1
