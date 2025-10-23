@@ -104,15 +104,17 @@ pipeline {
         stage('Restart service') {
           steps {
             sh '''
-              # Inicia la aplicación en background
+              # Inicia la aplicación en background con puerto 5000
               cd "''' + env.APP_DIR + '''"
-              nohup npx pnpm@latest start > agora-dev.log 2>&1 &
+              PORT=5000 nohup npx pnpm@latest start > agora-dev.log 2>&1 &
               echo $! > agora-dev.pid
               sleep 5
               
               # Verifica que esté corriendo
               if [ -f agora-dev.pid ]; then
                 echo "✅ Aplicación iniciada con PID: $(cat agora-dev.pid)"
+                echo "📋 Verificando logs..."
+                tail -n 10 agora-dev.log || true
               else
                 echo "❌ Error al iniciar la aplicación"
                 exit 1
