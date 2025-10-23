@@ -8,7 +8,7 @@ pipeline {
 
   environment {
     APP_DIR  = '/var/www/agora/dev'
-    SERVICE  = 'agora-dev'
+    SERVICE  = 'agora-dev'`
     ENV_FILE = '/etc/market/agora.env'
   }
 
@@ -17,10 +17,9 @@ pipeline {
     stage('Node & pnpm') {
       steps {
         sh '''
-          # Usa corepack para pnpm
+          # Instalar pnpm globalmente sin corepack
           node -v || true
-          corepack enable
-          corepack prepare pnpm@latest --activate
+          npm install -g pnpm@latest
           pnpm -v
         '''
       }
