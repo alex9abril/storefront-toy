@@ -3,43 +3,6 @@
 import { useState } from "react";
 import { useQuery } from "urql";
 
-// Datos de ejemplo para las direcciones (ya no se usan, se obtienen de Saleor)
-const _mockAddresses = [
-	{
-		id: "1",
-		type: "Casa",
-		name: "Casa Principal",
-		address: "Av. Insurgentes Sur 1234, Col. Del Valle",
-		city: "Ciudad de México",
-		state: "CDMX",
-		zipCode: "03100",
-		phone: "+52 55 1234-5678",
-		isDefault: true,
-	},
-	{
-		id: "2",
-		type: "Oficina",
-		name: "Oficina Corporativa",
-		address: "Paseo de la Reforma 500, Piso 15",
-		city: "Ciudad de México",
-		state: "CDMX",
-		zipCode: "06600",
-		phone: "+52 55 9876-5432",
-		isDefault: false,
-	},
-	{
-		id: "3",
-		type: "Casa",
-		name: "Casa de Vacaciones",
-		address: "Calle Morelos 456, Centro",
-		city: "Guadalajara",
-		state: "Jalisco",
-		zipCode: "44100",
-		phone: "+52 33 5555-1234",
-		isDefault: false,
-	},
-];
-
 export function Addresses() {
 	const [showAddForm, setShowAddForm] = useState(false);
 	const [editingAddress, setEditingAddress] = useState<string | null>(null);

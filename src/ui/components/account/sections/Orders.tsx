@@ -112,7 +112,7 @@ export function Orders() {
 	});
 
 	// Procesar datos de Saleor
-	const orders = data?.me?.orders?.edges?.map((edge) => edge.node) || [];
+	const orders = data?.me?.orders?.edges?.map((edge: any) => edge.node) || [];
 
 	// Filtrar pedidos
 	const filteredOrders = (orders as any[]).filter((order: any) => {
@@ -289,9 +289,14 @@ export function Orders() {
 											<div>
 												<p className="text-xs font-medium text-blue-900">Seguimiento</p>
 												<p className="font-mono text-sm text-blue-700">{getTrackingNumber(order)}</p>
-												{getFulfillmentInfo(order)?.status && (
-													<p className="text-xs text-blue-600">Estado: {getFulfillmentInfo(order).status}</p>
-												)}
+												{(() => {
+													const fulfillmentInfo = getFulfillmentInfo(order);
+													return (
+														fulfillmentInfo?.status && (
+															<p className="text-xs text-blue-600">Estado: {fulfillmentInfo.status}</p>
+														)
+													);
+												})()}
 											</div>
 										</div>
 									)}
@@ -320,7 +325,7 @@ export function Orders() {
 								<div>
 									<h4 className="mb-3 text-sm font-normal text-gray-700">Productos</h4>
 									<div className="space-y-3">
-										{order.lines.map((line, index) => (
+										{order.lines.map((line: any, index: number) => (
 											<div
 												key={index}
 												className="flex items-center gap-3 border-b border-gray-100 pb-3 last:border-b-0"

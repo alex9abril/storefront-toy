@@ -93,10 +93,6 @@ export function Cards() {
 		console.log("Establecer como predeterminada:", id);
 	};
 
-	const _maskCardNumber = (number: string) => {
-		return "**** **** **** " + number;
-	};
-
 	return (
 		<div className="p-6">
 			<div className="mb-6 flex items-center justify-between">

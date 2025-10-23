@@ -152,7 +152,7 @@ export function CustomerService() {
 						<div
 							key={option.id}
 							className={`cursor-pointer rounded-lg border p-6 transition-colors ${
-								selectedSupport === option.id
+								_selectedSupport === option.id
 									? "border-[#EB0A1E] bg-red-50"
 									: "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
 							}`}

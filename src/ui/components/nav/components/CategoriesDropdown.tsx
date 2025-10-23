@@ -6,21 +6,6 @@ import { LinkWithChannel } from "@/ui/atoms/LinkWithChannel";
 import { executeGraphQL } from "@/lib/graphql";
 import { CategoryHierarchyDocument } from "@/gql/graphql";
 
-// Iconos para categorías
-const categoryIcons: Record<string, string> = {
-	frenos: "🔧",
-	llantas: "⚙️",
-	aceites: "🛢️",
-	embrague: "⚡",
-	parabrisas: "🪟",
-	espejos: "🪞",
-	motor: "🔩",
-	filtros: "🔍",
-	baterias: "🔋",
-	amortiguadores: "🛡️",
-	default: "📦",
-};
-
 type Category = {
 	id: string;
 	name: string;
@@ -77,11 +62,6 @@ export const CategoriesDropdown = () => {
 
 		void loadCategories();
 	}, []);
-
-	const _getCategoryIcon = (slug: string) => {
-		const normalizedSlug = slug.toLowerCase();
-		return categoryIcons[normalizedSlug] || categoryIcons.default;
-	};
 
 	const getCategoryChildren = (categoryId: string) => {
 		return categories.find((cat) => cat.id === categoryId)?.children || [];

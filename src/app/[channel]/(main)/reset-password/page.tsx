@@ -3,14 +3,16 @@ import { Loader } from "@/ui/atoms/Loader";
 import { ResetPasswordForm } from "@/ui/components/ResetPasswordForm";
 
 interface ResetPasswordPageProps {
-	searchParams: { token?: string };
+	searchParams: Promise<{ token?: string }>;
 }
 
-export default function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+export default async function ResetPasswordPage({ searchParams }: ResetPasswordPageProps) {
+	const params = await searchParams;
+
 	return (
 		<Suspense fallback={<Loader />}>
 			<section className="mx-auto max-w-7xl p-8">
-				<ResetPasswordForm token={searchParams.token} />
+				<ResetPasswordForm token={params.token} />
 			</section>
 		</Suspense>
 	);

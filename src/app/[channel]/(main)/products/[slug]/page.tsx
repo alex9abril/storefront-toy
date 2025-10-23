@@ -49,7 +49,7 @@ export async function generateMetadata(
 	}
 
 	const productName = product.seoTitle || product.name;
-	const variantName = product.variants?.find(({ id }) => id === searchParams.variant)?.name;
+	const variantName = product.variants?.find(({ id }) => id === searchParams?.variant)?.name;
 	const productNameAndVariant = variantName ? `${productName} - ${variantName}` : productName;
 
 	return {
@@ -116,7 +116,7 @@ export default async function Page(props: {
 	const description = product?.description ? parser.parse(JSON.parse(product?.description)) : null;
 
 	const variants = product.variants;
-	const selectedVariantID = searchParams.variant;
+	const selectedVariantID = searchParams?.variant;
 	const selectedVariant = variants?.find(({ id }) => id === selectedVariantID);
 
 	const warehouseMode = getWarehouseMode();
@@ -263,12 +263,12 @@ export default async function Page(props: {
 		// Guardar información del almacén en metadatos de la línea específica del checkout
 		if (
 			warehouseId &&
-			result.checkoutLinesAdd?.checkoutLines &&
-			Array.isArray(result.checkoutLinesAdd.checkoutLines) &&
-			(result.checkoutLinesAdd.checkoutLines as unknown[]).length > 0
+			result.checkoutLinesAdd?.checkout?.lines &&
+			Array.isArray(result.checkoutLinesAdd.checkout.lines) &&
+			result.checkoutLinesAdd.checkout.lines.length > 0
 		) {
 			try {
-				const firstLine = (result.checkoutLinesAdd.checkoutLines as unknown[])[0] as { id?: string };
+				const firstLine = result.checkoutLinesAdd.checkout.lines[0];
 				const lineId = firstLine?.id;
 
 				// Actualizar metadatos de la línea específica con información del almacén
@@ -444,7 +444,9 @@ export default async function Page(props: {
 							variantId={selectedVariantID}
 							warehouseId={effectiveSelectedId}
 							warehouseName={
-								filtered.find((w) => w.id === effectiveSelectedId)?.name || configuredWarehouseName
+								filtered.find((w) => w.id === effectiveSelectedId)?.name ||
+								configuredWarehouseName ||
+								undefined
 							}
 						/>
 

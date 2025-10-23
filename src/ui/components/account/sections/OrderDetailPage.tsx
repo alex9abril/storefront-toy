@@ -369,12 +369,17 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 										{getTrackingNumber(order)}
 									</span>
 								</div>
-								{getFulfillmentInfo(order)?.status && (
-									<div className="flex items-center gap-2">
-										<span className="text-sm font-medium text-blue-800">Estado del envío:</span>
-										<span className="text-sm text-blue-700">{getFulfillmentInfo(order).status}</span>
-									</div>
-								)}
+								{(() => {
+									const fulfillmentInfo = getFulfillmentInfo(order);
+									return (
+										fulfillmentInfo?.status && (
+											<div className="flex items-center gap-2">
+												<span className="text-sm font-medium text-blue-800">Estado del envío:</span>
+												<span className="text-sm text-blue-700">{fulfillmentInfo.status}</span>
+											</div>
+										)
+									);
+								})()}
 							</div>
 							<div className="mt-4">
 								<p className="text-sm text-blue-700">
@@ -392,7 +397,7 @@ export function OrderDetailPage({ orderId }: OrderDetailPageProps) {
 					<h2 className="text-lg font-medium text-gray-900">Productos</h2>
 				</div>
 				<div className="divide-y divide-gray-200">
-					{order.lines.map((line) => (
+					{order.lines.map((line: any) => (
 						<div key={line.id} className="p-6">
 							<div className="flex items-start gap-4">
 								{line.variant.product.thumbnail && (
