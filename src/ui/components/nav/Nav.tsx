@@ -1,26 +1,30 @@
 import { Suspense } from "react";
 import { UserMenuContainer } from "./components/UserMenu/UserMenuContainer";
 import { CartNavItem } from "./components/CartNavItem";
-import { NavLinks } from "./components/NavLinks";
+import { StaticNavLinks } from "./components/StaticNavLinks";
 import { MobileMenu } from "./components/MobileMenu";
 import { SearchBar } from "./components/SearchBar";
+import { MobileSearchBar } from "./components/MobileSearchBar";
 
 export const Nav = ({ channel }: { channel: string }) => {
 	return (
-		<nav className="flex w-full items-center justify-center gap-4 lg:gap-6" aria-label="Main navigation">
-			{/* Barra de búsqueda central */}
-			<div className="max-w-2xl flex-1">
+		<nav
+			className="flex w-full items-center justify-center gap-2 sm:gap-4 lg:gap-6"
+			aria-label="Main navigation"
+		>
+			{/* Barra de búsqueda central - oculta en móviles */}
+			<div className="hidden max-w-2xl flex-1 sm:block">
 				<SearchBar channel={channel} />
 			</div>
 
 			{/* Iconos de la derecha */}
-			<div className="flex items-center gap-4">
-				{/* Icono de comparar */}
+			<div className="flex items-center gap-2 sm:gap-4">
+				{/* Icono de comparar - oculto en móviles */}
 				<button
-					className="text-[#EB0A1E] transition-colors hover:text-[#C8102E]"
+					className="hidden text-[#EB0A1E] transition-colors hover:text-[#C8102E] sm:block"
 					aria-label="Comparar productos"
 				>
-					<svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -32,7 +36,7 @@ export const Nav = ({ channel }: { channel: string }) => {
 
 				{/* Icono de favoritos */}
 				<button className="text-[#EB0A1E] transition-colors hover:text-[#C8102E]" aria-label="Favoritos">
-					<svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							strokeLinecap="round"
 							strokeLinejoin="round"
@@ -43,12 +47,12 @@ export const Nav = ({ channel }: { channel: string }) => {
 				</button>
 
 				{/* Carrito */}
-				<Suspense fallback={<div className="w-6" />}>
+				<Suspense fallback={<div className="w-5 sm:w-6" />}>
 					<CartNavItem channel={channel} />
 				</Suspense>
 
 				{/* Menú de usuario */}
-				<Suspense fallback={<div className="w-8" />}>
+				<Suspense fallback={<div className="w-6 sm:w-8" />}>
 					<UserMenuContainer />
 				</Suspense>
 			</div>
@@ -56,8 +60,8 @@ export const Nav = ({ channel }: { channel: string }) => {
 			{/* Menú móvil */}
 			<Suspense>
 				<MobileMenu>
-					<SearchBar channel={channel} />
-					<NavLinks channel={channel} />
+					<MobileSearchBar channel={channel} />
+					<StaticNavLinks channel={channel} />
 				</MobileMenu>
 			</Suspense>
 		</nav>

@@ -24,9 +24,9 @@ export const Logo = () => {
 	const pathname = usePathname();
 
 	const content = (
-		<div className="mt-2 flex w-[200px] items-center gap-2 font-bold leading-none">
-			<Image src="/toyota.png" alt="Toyota" width={45} height={45} />
-			<span className="leading-none text-gray-800">{companyName}</span>
+		<div className="mt-1 flex w-[160px] items-center gap-1.5 font-bold leading-none sm:mt-2 sm:w-[200px] sm:gap-2">
+			<Image src="/toyota.png" alt="Toyota" width={32} height={32} className="sm:h-[45px] sm:w-[45px]" />
+			<span className="text-sm leading-none text-gray-800 sm:text-base">{companyName}</span>
 		</div>
 	);
 

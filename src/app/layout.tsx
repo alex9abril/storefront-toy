@@ -4,6 +4,7 @@ import { Suspense, type ReactNode } from "react";
 import { type Metadata } from "next";
 import { DraftModeNotification } from "@/ui/components/DraftModeNotification";
 import { AuthProvider } from "@/ui/components/AuthProvider";
+import { ConnectionStatus } from "@/ui/components/ConnectionStatus";
 
 const inter = Inter({ subsets: ["latin"], display: "swap", weight: ["400", "500", "600", "700"] });
 
@@ -37,6 +38,7 @@ export default function RootLayout(props: { children: ReactNode }) {
 					<Suspense>
 						<DraftModeNotification />
 					</Suspense>
+					<ConnectionStatus show={process.env.NODE_ENV === "development"} />
 				</AuthProvider>
 			</body>
 		</html>

@@ -15,8 +15,8 @@ export const SearchBar = ({ channel }: { channel: string }) => {
 			<label className="w-full">
 				<span className="sr-only">Buscar productos</span>
 				<div className="flex w-full rounded-lg border-2 border-white bg-white shadow-lg">
-					{/* Dropdown de categorías */}
-					<div className="relative">
+					{/* Dropdown de categorías - oculto en móviles */}
+					<div className="relative hidden sm:block">
 						<select className="h-12 cursor-pointer appearance-none rounded-l-lg border-0 bg-transparent px-4 pr-8 text-sm text-gray-700 focus:border-0 focus:outline-none focus:ring-0">
 							<option>Todas las categorías</option>
 							<option>Refacciones</option>
@@ -44,13 +44,13 @@ export const SearchBar = ({ channel }: { channel: string }) => {
 						placeholder="Buscar productos..."
 						autoComplete="on"
 						required
-						className="h-12 flex-1 border-0 bg-transparent px-4 py-3 text-sm text-black placeholder:text-gray-400 focus:border-0 focus:outline-none focus:ring-0"
+						className="h-12 flex-1 border-0 bg-transparent px-4 py-3 text-sm text-black placeholder:text-gray-400 focus:border-0 focus:outline-none focus:ring-0 sm:rounded-l-lg"
 					/>
 
 					{/* Botón de búsqueda */}
 					<button
 						type="submit"
-						className="flex h-12 items-center justify-center rounded-r-lg bg-[#EB0A1E] px-6 text-white transition-colors duration-200 hover:bg-[#C8102E] focus:bg-[#C8102E] focus:outline-none focus:ring-2 focus:ring-[#EB0A1E] focus:ring-offset-2"
+						className="flex h-12 items-center justify-center rounded-r-lg bg-[#EB0A1E] px-4 text-white transition-colors duration-200 hover:bg-[#C8102E] focus:bg-[#C8102E] focus:outline-none focus:ring-2 focus:ring-[#EB0A1E] focus:ring-offset-2 sm:px-6"
 					>
 						<span className="sr-only">Buscar</span>
 						<SearchIcon aria-hidden className="h-5 w-5" />

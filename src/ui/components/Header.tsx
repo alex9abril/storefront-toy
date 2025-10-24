@@ -6,8 +6,8 @@ import { CategoriesDropdown } from "./nav/components/CategoriesDropdown";
 export function Header({ channel }: { channel: string }) {
 	return (
 		<header className="sticky top-0 z-20">
-			{/* Fila Superior - Información de contacto */}
-			<div className="bg-gray-50 text-gray-700">
+			{/* Fila Superior - Información de contacto (oculta en móviles) */}
+			<div className="hidden bg-gray-50 text-gray-700 lg:block">
 				<div className="mx-auto max-w-7xl px-3 sm:px-8">
 					<div className="flex h-10 items-center justify-between text-xs">
 						{/* Izquierda - Información de contacto */}
@@ -60,7 +60,7 @@ export function Header({ channel }: { channel: string }) {
 			{/* Fila Media - Logo y búsqueda */}
 			<div className="bg-gray-100 text-gray-800">
 				<div className="mx-auto max-w-7xl px-3 sm:px-8">
-					<div className="flex h-16 items-center justify-between gap-4 md:gap-8">
+					<div className="flex h-12 items-center justify-between gap-2 sm:h-16 sm:gap-4 md:gap-8">
 						<Logo />
 						<Nav channel={channel} />
 					</div>
@@ -70,14 +70,14 @@ export function Header({ channel }: { channel: string }) {
 			{/* Fila Inferior - Navegación */}
 			<div className="border-b border-gray-200 bg-white">
 				<div className="mx-auto max-w-7xl px-3 sm:px-8">
-					<div className="flex h-12 items-center justify-between">
+					<div className="flex h-10 items-center justify-between sm:h-12">
 						{/* Izquierda - Menú categorías */}
 						<div className="flex items-center gap-2">
 							<CategoriesDropdown />
 						</div>
 
 						{/* Centro - Enlaces de navegación */}
-						<div className="hidden items-center gap-6 md:flex">
+						<div className="hidden items-center gap-3 sm:gap-4 md:flex lg:gap-6">
 							<Link
 								href={`/${process.env.NEXT_PUBLIC_DEFAULT_CHANNEL || "toyota-web"}`}
 								className="text-sm font-medium text-[#EB0A1E] hover:text-[#C8102E]"
