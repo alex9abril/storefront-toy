@@ -12,7 +12,12 @@ export const useAuthErrorHandler = () => {
 	const errorWindow = 30000; // 30 segundos
 
 	useEffect(() => {
-		const handleAuthError = (event: CustomEvent) => {
+		const handleAuthError = (event: Event) => {
+			// Verificar que sea un CustomEvent
+			if (!(event instanceof CustomEvent)) {
+				return;
+			}
+
 			const now = Date.now();
 			const timeSinceLastError = now - lastErrorTimeRef.current;
 
@@ -28,17 +33,14 @@ export const useAuthErrorHandler = () => {
 			if (errorCountRef.current > maxErrors) {
 				console.warn("Demasiados errores de autenticación, evitando reintentos");
 				event.preventDefault();
-				return false;
 			}
-
-			return true;
 		};
 
 		// Escuchar eventos de error de autenticación
-		window.addEventListener("auth-error", handleAuthError as EventListener);
+		window.addEventListener("auth-error", handleAuthError);
 
 		return () => {
-			window.removeEventListener("auth-error", handleAuthError as EventListener);
+			window.removeEventListener("auth-error", handleAuthError);
 		};
 	}, []);
 
