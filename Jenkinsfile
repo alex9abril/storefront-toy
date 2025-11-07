@@ -98,13 +98,13 @@ pipeline {
           # Exporta variables para embebido en build (NEXT_PUBLIC_*)
           # Las variables ya están en .env, pero las exportamos también al entorno
           set -a
-          # Usar source con ruta explícita
-          if ! source "$(pwd)/.env" 2>&1; then
+          # Usar . (punto) que es POSIX y funciona en todos los shells
+          . .env || {
             echo "❌ Error al cargar .env"
             echo "📋 Contenido del archivo:"
             cat .env || true
             exit 1
-          fi
+          }
           set +a
           echo "✅ Variables cargadas desde .env (copiado desde ''' + env.ENV_FILE + ''')"
 
