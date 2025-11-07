@@ -1,3 +1,11 @@
+type GraphQLResponse = {
+	data?: {
+		__schema?: {
+			types?: Array<{ name?: string }>;
+		};
+	};
+};
+
 export default async function DebugPage() {
 	const apiUrl = process.env.NEXT_PUBLIC_SALEOR_API_URL;
 	const token = process.env.SALEOR_APP_TOKEN;
@@ -20,13 +28,14 @@ export default async function DebugPage() {
 
 			if (response.ok) {
 				apiStatus = "✅ API responde correctamente";
-				const data = await response.json();
+				const data = (await response.json()) as GraphQLResponse;
 				testQuery = `✅ Query ejecutada: ${data.data?.__schema?.types?.length || 0} tipos encontrados`;
 			} else {
 				apiStatus = `❌ API error: ${response.status} ${response.statusText}`;
 			}
 		} catch (error) {
-			apiStatus = `❌ Error de conexión: ${error.message}`;
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			apiStatus = `❌ Error de conexión: ${errorMessage}`;
 		}
 	}
 
