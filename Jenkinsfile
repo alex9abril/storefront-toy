@@ -39,7 +39,14 @@ pipeline {
           # Copiar configuración desde agora.env (fuente única de verdad)
           if [ -f ''' + env.ENV_FILE + ''' ]; then
             cp ''' + env.ENV_FILE + ''' .env
-            echo "✅ Archivo .env creado desde ''' + env.ENV_FILE + '''"
+            if [ -f .env ]; then
+              echo "✅ Archivo .env creado desde ''' + env.ENV_FILE + '''"
+              echo "📋 Verificando contenido (primeras líneas):"
+              head -n 3 .env || echo "⚠️  No se pudo leer .env"
+            else
+              echo "❌ Error: .env no se creó correctamente"
+              exit 1
+            fi
           else
             echo "❌ Archivo ''' + env.ENV_FILE + ''' no encontrado"
             echo "Por favor crea el archivo con:"
@@ -64,14 +71,40 @@ pipeline {
         sh '''
           # Verificar que .env existe (ya copiado en Setup environment)
           if [ ! -f .env ]; then
-            echo "❌ Archivo .env no encontrado. Debe haberse creado en el stage anterior."
+            echo "❌ Archivo .env no encontrado. Intentando recrear desde ''' + env.ENV_FILE + '''..."
+            if [ -f ''' + env.ENV_FILE + ''' ]; then
+              cp ''' + env.ENV_FILE + ''' .env
+              echo "✅ Archivo .env recreado desde ''' + env.ENV_FILE + '''"
+            else
+              echo "❌ Archivo ''' + env.ENV_FILE + ''' tampoco existe"
+              exit 1
+            fi
+          fi
+          
+          # Verificar que el archivo es legible y tiene contenido
+          if [ ! -r .env ]; then
+            echo "❌ Archivo .env no es legible"
             exit 1
           fi
+          
+          if [ ! -s .env ]; then
+            echo "❌ Archivo .env está vacío"
+            exit 1
+          fi
+          
+          echo "📋 Verificando .env antes de cargar (primeras líneas):"
+          head -n 3 .env || true
           
           # Exporta variables para embebido en build (NEXT_PUBLIC_*)
           # Las variables ya están en .env, pero las exportamos también al entorno
           set -a
-          . .env
+          # Usar source con ruta explícita
+          if ! source "$(pwd)/.env" 2>&1; then
+            echo "❌ Error al cargar .env"
+            echo "📋 Contenido del archivo:"
+            cat .env || true
+            exit 1
+          fi
           set +a
           echo "✅ Variables cargadas desde .env (copiado desde ''' + env.ENV_FILE + ''')"
 
