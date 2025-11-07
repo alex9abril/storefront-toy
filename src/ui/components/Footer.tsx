@@ -8,26 +8,39 @@ import { WarehouseSelect } from "@/ui/components/WarehouseSelect";
 
 export async function Footer({ channel }: { channel: string }) {
 	const { isEnabled } = await draftMode();
-	const footerLinks = await executeGraphQL(MenuGetBySlugDocument, {
-		variables: { slug: "footer", channel },
-		...(isEnabled ? { cache: "no-store" as RequestCache } : { revalidate: 60 * 60 * 24 }),
-	});
-	const channels = process.env.SALEOR_APP_TOKEN
-		? await executeGraphQL(ChannelsListDocument, {
+
+	let footerLinks = null;
+	try {
+		footerLinks = await executeGraphQL(MenuGetBySlugDocument, {
+			variables: { slug: "footer", channel },
+			...(isEnabled ? { cache: "no-store" as RequestCache } : { revalidate: 60 * 60 * 24 }),
+		});
+	} catch (error) {
+		console.error("Error loading footer menu:", error);
+	}
+
+	let channels = null;
+	if (process.env.SALEOR_APP_TOKEN) {
+		try {
+			channels = await executeGraphQL(ChannelsListDocument, {
 				withAuth: false, // disable cookie-based auth for this call
 				headers: {
 					// and use app token instead
 					Authorization: `Bearer ${process.env.SALEOR_APP_TOKEN}`,
 				},
-			})
-		: null;
+			});
+		} catch (error) {
+			console.error("Error loading channels:", error);
+		}
+	}
+
 	const currentYear = new Date().getFullYear();
 
 	return (
 		<footer className="border-neutral-300 bg-neutral-50">
 			<div className="mx-auto max-w-7xl px-4 lg:px-8">
 				<div className="grid grid-cols-3 gap-8 py-16">
-					{footerLinks.menu?.items?.map((item) => {
+					{footerLinks?.menu?.items?.map((item) => {
 						return (
 							<div key={item.id}>
 								<h3 className="text-sm font-semibold text-neutral-900">{item.name}</h3>

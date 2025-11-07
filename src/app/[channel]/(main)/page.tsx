@@ -15,30 +15,47 @@ export default async function Page(props: { params: Promise<{ channel: string }>
 	const params = await props.params;
 	const homeCollectionSlug = process.env.NEXT_PUBLIC_HOME_COLLECTION_SLUG || "featured-products";
 	const { isEnabled } = await draftMode();
-	console.log("[Home/Page] Payload", {
-		operation: "ProductListByCollection",
-		variables: { slug: homeCollectionSlug, channel: (await props.params).channel },
-	});
-	const data = await executeGraphQL(ProductListByCollectionDocument, {
-		variables: {
-			slug: homeCollectionSlug,
+
+	let data;
+	try {
+		console.log("[Home/Page] Payload", {
+			operation: "ProductListByCollection",
+			variables: { slug: homeCollectionSlug, channel: params.channel },
+		});
+		data = await executeGraphQL(ProductListByCollectionDocument, {
+			variables: {
+				slug: homeCollectionSlug,
+				channel: params.channel,
+			},
+			...(isEnabled ? { cache: "no-store" as RequestCache } : { revalidate: 60 }),
+		});
+
+		console.log("[Home/Page] GraphQL response", {
+			collectionSlug: homeCollectionSlug,
 			channel: params.channel,
-		},
-		...(isEnabled ? { cache: "no-store" as RequestCache } : { revalidate: 60 }),
-	});
-
-	console.log("[Home/Page] GraphQL response", {
-		collectionSlug: homeCollectionSlug,
-		channel: params.channel,
-		total: data.collection?.products?.edges?.length ?? null,
-		firstNames: data.collection?.products?.edges?.map((e) => e.node.name).slice(0, 5),
-	});
-
-	if (!data.collection?.products) {
-		return null;
+			total: data.collection?.products?.edges?.length ?? null,
+			firstNames: data.collection?.products?.edges?.map((e) => e.node.name).slice(0, 5),
+		});
+	} catch (error) {
+		console.error("[Home/Page] Error loading products:", error);
+		data = null;
 	}
 
-	const products = data.collection?.products.edges.map(({ node: product }) => product);
+	if (!data?.collection?.products) {
+		return (
+			<>
+				<Hero />
+				<div className="mx-auto max-w-7xl px-6">
+					<VehicleSelectorBanner />
+					<div className="mx-auto max-w-7xl p-8 pb-16">
+						<p className="text-center text-gray-500">No se pudieron cargar los productos en este momento.</p>
+					</div>
+				</div>
+			</>
+		);
+	}
+
+	const products = data.collection.products.edges.map(({ node: product }) => product);
 
 	return (
 		<>

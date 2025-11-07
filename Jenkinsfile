@@ -36,13 +36,18 @@ pipeline {
     stage('Setup environment') {
       steps {
         sh '''
-          # Crear archivo .env desde .env.example
-          if [ -f .env.example ]; then
-            cp .env.example .env
-            echo "✅ Archivo .env creado desde .env.example"
+          # Copiar configuración desde agora.env (fuente única de verdad)
+          if [ -f ''' + env.ENV_FILE + ''' ]; then
+            cp ''' + env.ENV_FILE + ''' .env
+            echo "✅ Archivo .env creado desde ''' + env.ENV_FILE + '''"
           else
-            echo "⚠️  Archivo .env.example no encontrado"
-            touch .env
+            echo "❌ Archivo ''' + env.ENV_FILE + ''' no encontrado"
+            echo "Por favor crea el archivo con:"
+            echo "sudo mkdir -p /etc/market"
+            echo "sudo touch /etc/market/agora.env"
+            echo "sudo chown jenkins:jenkins /etc/market/agora.env"
+            echo "Luego agrega las variables necesarias al archivo"
+            exit 1
           fi
         '''
       }
@@ -57,21 +62,18 @@ pipeline {
     stage('Build') {
       steps {
         sh '''
-          # Exporta variables para embebido en build (NEXT_PUBLIC_*)
-          set -a
-          if [ -f ''' + env.ENV_FILE + ''' ]; then
-            . ''' + env.ENV_FILE + '''
-            echo "✅ Variables cargadas desde ''' + env.ENV_FILE + '''"
-          else
-            echo "❌ Archivo ''' + env.ENV_FILE + ''' no encontrado"
-            echo "Por favor crea el archivo con:"
-            echo "sudo mkdir -p /etc/market"
-            echo "sudo touch /etc/market/agora.env"
-            echo "sudo chown jenkins:jenkins /etc/market/agora.env"
-            echo "Luego agrega las variables necesarias al archivo"
+          # Verificar que .env existe (ya copiado en Setup environment)
+          if [ ! -f .env ]; then
+            echo "❌ Archivo .env no encontrado. Debe haberse creado en el stage anterior."
             exit 1
           fi
+          
+          # Exporta variables para embebido en build (NEXT_PUBLIC_*)
+          # Las variables ya están en .env, pero las exportamos también al entorno
+          set -a
+          . .env
           set +a
+          echo "✅ Variables cargadas desde .env (copiado desde ''' + env.ENV_FILE + ''')"
 
           # Asegura output standalone para despliegue limpio
           # (debe estar en next.config.js: output: "standalone")
@@ -99,8 +101,16 @@ pipeline {
                 --exclude='node_modules' \
                 ./ "''' + env.APP_DIR + '''/"
 
-              # Instala deps de producción en runtime (sin husky)
+              # Asegurar que .env en destino viene de la fuente única (agora.env)
               cd "''' + env.APP_DIR + '''"
+              if [ -f ''' + env.ENV_FILE + ''' ]; then
+                cp ''' + env.ENV_FILE + ''' .env
+                echo "✅ .env actualizado desde ''' + env.ENV_FILE + ''' en destino"
+              else
+                echo "⚠️  ''' + env.ENV_FILE + ''' no encontrado, usando .env del workspace"
+              fi
+
+              # Instala deps de producción en runtime (sin husky)
               npx pnpm@latest install --frozen-lockfile --prod --ignore-scripts
             '''
           }
@@ -109,26 +119,62 @@ pipeline {
         stage('Restart service') {
           steps {
             sh '''
-              # Verificar que el puerto esté libre
               cd "''' + env.APP_DIR + '''"
-              if netstat -tlnp | grep :5010 >/dev/null; then
-                echo "⚠️ Puerto 5010 ocupado, liberando..."
-                pkill -f "agora-dev" || true
-                pkill -f "pnpm.*start" || true
-                pkill -f "next.*start" || true
-                sleep 5
+              
+              # Detener procesos existentes de manera más agresiva
+              echo "🛑 Deteniendo procesos existentes..."
+              pkill -f "agora-dev" || true
+              pkill -f "pnpm.*start" || true
+              pkill -f "next.*start" || true
+              
+              # Si hay un PID guardado, intentar matarlo
+              if [ -f agora-dev.pid ]; then
+                OLD_PID=$(cat agora-dev.pid)
+                if kill -0 "$OLD_PID" 2>/dev/null; then
+                  echo "🛑 Matando proceso anterior con PID: $OLD_PID"
+                  kill -9 "$OLD_PID" 2>/dev/null || true
+                fi
+                rm -f agora-dev.pid
+              fi
+              
+              # Esperar a que el puerto se libere
+              echo "⏳ Esperando a que el puerto 5010 se libere..."
+              for i in $(seq 1 10); do
+                if ! netstat -tlnp 2>/dev/null | grep :5010 >/dev/null; then
+                  break
+                fi
+                echo "   Intento $i/10: puerto aún ocupado..."
+                sleep 2
+              done
+              
+              # Verificar una última vez
+              if netstat -tlnp 2>/dev/null | grep :5010 >/dev/null; then
+                echo "⚠️ Puerto 5010 aún ocupado, intentando liberar con fuser..."
+                fuser -k 5010/tcp 2>/dev/null || true
+                sleep 3
               fi
               
               # Inicia la aplicación en background con puerto 5010
-              PORT=5010 nohup npx pnpm@latest start > agora-dev.log 2>&1 &
-              echo $! > agora-dev.pid
+              echo "🚀 Iniciando aplicación..."
+              export PORT=5010
+              nohup npx pnpm@latest start > agora-dev.log 2>&1 &
+              APP_PID=$!
+              echo $APP_PID > agora-dev.pid
               sleep 5
               
               # Verifica que esté corriendo
               if [ -f agora-dev.pid ]; then
-                echo "✅ Aplicación iniciada con PID: $(cat agora-dev.pid)"
-                echo "📋 Verificando logs..."
-                tail -n 10 agora-dev.log || true
+                PID=$(cat agora-dev.pid)
+                if kill -0 "$PID" 2>/dev/null; then
+                  echo "✅ Aplicación iniciada con PID: $PID"
+                  echo "📋 Verificando logs..."
+                  tail -n 20 agora-dev.log || true
+                else
+                  echo "❌ El proceso no está corriendo"
+                  echo "📋 Últimos logs:"
+                  tail -n 50 agora-dev.log || true
+                  exit 1
+                fi
               else
                 echo "❌ Error al iniciar la aplicación"
                 exit 1
