@@ -95,14 +95,25 @@ pipeline {
           echo "📋 Verificando .env antes de cargar (primeras líneas):"
           head -n 3 .env || true
           
+          # Obtener ruta absoluta del archivo .env
+          ENV_PATH=$(pwd)/.env
+          echo "📂 Ruta absoluta de .env: $ENV_PATH"
+          
+          # Verificar que la ruta absoluta existe
+          if [ ! -f "$ENV_PATH" ]; then
+            echo "❌ Archivo .env no encontrado en ruta absoluta: $ENV_PATH"
+            ls -la .env || true
+            exit 1
+          fi
+          
           # Exporta variables para embebido en build (NEXT_PUBLIC_*)
           # Las variables ya están en .env, pero las exportamos también al entorno
           set -a
-          # Usar . (punto) que es POSIX y funciona en todos los shells
-          . .env || {
-            echo "❌ Error al cargar .env"
+          # Usar ruta absoluta para evitar problemas de directorio de trabajo
+          . "$ENV_PATH" || {
+            echo "❌ Error al cargar .env desde $ENV_PATH"
             echo "📋 Contenido del archivo:"
-            cat .env || true
+            cat "$ENV_PATH" || true
             exit 1
           }
           set +a
