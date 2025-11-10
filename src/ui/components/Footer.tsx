@@ -7,16 +7,25 @@ import { executeGraphQL } from "@/lib/graphql";
 import { WarehouseSelect } from "@/ui/components/WarehouseSelect";
 
 export async function Footer({ channel }: { channel: string }) {
-	const { isEnabled } = await draftMode();
+	let isEnabled = false;
+	try {
+		const draft = await draftMode();
+		isEnabled = draft.isEnabled;
+	} catch (error) {
+		// draftMode puede fallar en algunos contextos, continuar sin draft mode
+		console.warn("Error getting draft mode:", error);
+	}
 
 	let footerLinks = null;
 	try {
 		footerLinks = await executeGraphQL(MenuGetBySlugDocument, {
 			variables: { slug: "footer", channel },
+			withAuth: false, // No usar auth para el menú del footer
 			...(isEnabled ? { cache: "no-store" as RequestCache } : { revalidate: 60 * 60 * 24 }),
 		});
 	} catch (error) {
 		console.error("Error loading footer menu:", error);
+		// Continuar sin el menú del footer
 	}
 
 	let channels = null;
@@ -24,6 +33,7 @@ export async function Footer({ channel }: { channel: string }) {
 		try {
 			channels = await executeGraphQL(ChannelsListDocument, {
 				withAuth: false, // disable cookie-based auth for this call
+				useAppToken: true, // usar app token
 				headers: {
 					// and use app token instead
 					Authorization: `Bearer ${process.env.SALEOR_APP_TOKEN}`,
@@ -31,6 +41,7 @@ export async function Footer({ channel }: { channel: string }) {
 			});
 		} catch (error) {
 			console.error("Error loading channels:", error);
+			// Continuar sin canales - no es crítico
 		}
 	}
 

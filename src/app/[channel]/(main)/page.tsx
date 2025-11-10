@@ -14,7 +14,15 @@ export const metadata = {
 export default async function Page(props: { params: Promise<{ channel: string }> }) {
 	const params = await props.params;
 	const homeCollectionSlug = process.env.NEXT_PUBLIC_HOME_COLLECTION_SLUG || "featured-products";
-	const { isEnabled } = await draftMode();
+
+	let isEnabled = false;
+	try {
+		const draft = await draftMode();
+		isEnabled = draft.isEnabled;
+	} catch (error) {
+		// draftMode puede fallar en algunos contextos, continuar sin draft mode
+		console.warn("[Home/Page] Error getting draft mode:", error);
+	}
 
 	let data;
 	try {
